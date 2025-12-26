@@ -1,0 +1,20 @@
+# Exclude helper scripts and local tooling from the published package
+publishsdk.sh
+scripts/
+
+# Editor and OS files
+.DS_Store
+.vscode/
+.idea/
+
+# Build and local artifacts
+build/
+
+# Repo Root Working Files
+TODO.md
+
+test_app/
+
+lib/paysheet_backup.dart
+lib/paysheet_backup2.dart
+lib/paysheet.dart.bank

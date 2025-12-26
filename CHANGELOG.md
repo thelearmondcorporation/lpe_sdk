@@ -1,0 +1,23 @@
+
+## 4.1.0+4
+- Fourth stable SDK release: public API, full dartdoc, CI, and improved metadata.
+- Unified payment sheet and button widgets for Stripe, Apple Pay, Google Pay, bank payments and Source Pay.
+- Example and INSTRUCTIONS updated for SDK consumers.
+* Provides a reusable payment sheet for Flutter apps.
+* Built on Stripe.
+* Supports card, US bank, EU bank, Apple Pay, Google Pay and Source Pay payments.
+* Modal bottom sheet UI and secure WebView-based payment collection.
+* Easy API for payment confirmation and result handling.
+* Uses Native Apple Pay and Google Pay functions. 
+* Add `LearmondPayButtons` - a single-line widget that renders Card/Bank and native pay buttons in a 3+2 layout (3 buttons on the top row (Card, US Bank, EU Bank), 2 centered on the bottom row (Apple Pay, Google Pay)).
+* Separated LearmondPayButtons for single use as needed use. 
+* Add individual button widgets: `LearmondCardButton`, `LearmondUSBankButton`, `LearmondEUBankButton`, `LearmondApplePayButton`, `LearmondGooglePayButton`, `LearmondSourcePayButton`.
+* Add merchant summary support and `SummaryLineItem` to pass merchant name, info and a list of summary lines to the paysheet (`merchantArgs.summaryItems`).
+* Call LpeSDKConfig.init to set your apple and google merchant IDs.
+* Consistent button sizing and layout. 
+* README and INSTRUCTIONS with widget usage examples and setup notes for Apple/Google native pay.
+* Supports Mac and Linux.
+* Web support: adds Google Pay web implementation (Google Pay JS SDK preferred, PaymentRequest fallback) and Apple Pay web flow support.
+* Apple Pay (web): implements server-backed merchant validation flow and added example merchant-validation proxy servers (Node and Python) in `example/apple_validation_server`.
+* Web pay: delegates PaymentRequest-capable browsers to the web plugin implementation so Google Pay flows run in Chrome/Edge and Apple Pay sessions can be started when available.
+

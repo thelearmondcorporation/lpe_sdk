@@ -1,0 +1,74 @@
+name: lpe_sdk
+description: "Learmond Pay Element (LPE) SDK – A reusable Flutter package for Stripe payment sheets, supporting card, bank, Apple Pay, and Google Pay in a single API."
+version: 4.1.0+4
+homepage: https://thelearmondcorporation.com
+repository: https://github.com/tlearmond1/thelearmondcorporation/LPE-dart
+issue_tracker: https://github.com/tlearmond1/thelearmondcorporation/issues
+documentation: https://github.com/tlearmond1/thelearmondcorporation/LPE-dart#readme
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+  flutter: '>=1.10.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  webview_flutter: ^4.13.0
+  flutter_inappwebview: ^6.1.5
+  flutter_stripe: ^12.1.1
+  paysheet: ^2.0.0+1
+  #
+  # For details regarding assets in packages, see
+  # https://flutter.dev/to/asset-from-package
+  #
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # To add custom fonts to your package, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts in packages, see
+  flutter_test:
+    sdk: flutter
+  # https://flutter.dev/to/font-from-package
+  
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.learmond.lpe_sdk
+        pluginClass: LearmondSDKNativePayPlugin
+      ios:
+        pluginClass: LearmondSDKNativePayPlugin
+      macos:
+        pluginClass: LearmondSDKNativePayPlugin
+        fileName: lpe_sdk.dart
+      linux:
+        pluginClass: LearmondSDKNativePayPlugin
+        fileName: lpe_sdk.dart
+      windows:
+        pluginClass: LearmondSDKNativePayPlugin
+        fileName: lpe_sdk.dart
+      web:
+        pluginClass: LpeSdkWeb
+        fileName: lpe_sdk_web.dart
+  assets:
+    - static/assets/GPay_Acceptance_Mark_800.png
+
+dev_dependencies:
+  lints: ^6.0.0

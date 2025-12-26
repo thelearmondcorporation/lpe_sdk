@@ -1,0 +1,19 @@
+
+# The project previously included `package:flutter_lints/flutter.yaml` here.
+# Some environments (or CI runners) may not have that package available when
+# running `flutter analyze` directly. To avoid an `include_file_not_found`
+# warning we provide a minimal set of lint rules here. If you prefer the
+# full `flutter_lints` rule set, add `flutter_lints` to `dev_dependencies`
+# in `pubspec.yaml` and run `flutter pub get` before `flutter analyze`.
+include: package:lints/core.yaml
+
+linter:
+  rules:
+    avoid_print: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_fields: true
+    prefer_const_constructors_in_immutables: true
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
