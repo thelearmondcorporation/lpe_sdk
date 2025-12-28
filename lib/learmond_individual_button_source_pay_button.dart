@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'merchant_arg_builder.dart';
-import 'paysheet.dart' show StripePaymentResult, showLpePaysheet;
+import 'package:paysheet/paysheet.dart'
+    show StripePaymentResult, showLpePaysheet;
 import 'summary_line_item.dart' show SummaryLineItem;
 import 'learmondindividualbuttons.dart' show lpeButtonWidth;
 
@@ -14,6 +15,7 @@ class LearmondSourcePayButton extends StatelessWidget {
   final String amount;
   final String currency;
   final void Function(StripePaymentResult)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final Map<String, dynamic>? merchantArgs;
   final List<SummaryLineItem>? summaryItems;
@@ -27,6 +29,7 @@ class LearmondSourcePayButton extends StatelessWidget {
     this.amount = '0.00',
     this.currency = 'USD',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
     this.merchantArgs,
     this.summaryItems,
@@ -64,6 +67,7 @@ class LearmondSourcePayButton extends StatelessWidget {
             amount: amount,
             merchantArgs: margs,
             mountOnShow: true,
+            onPay: onPay,
             onResult: (result) {
               try {
                 if (onResult != null) onResult!(result);

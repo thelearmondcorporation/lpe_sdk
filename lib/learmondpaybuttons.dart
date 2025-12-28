@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'learmondindividualbuttons.dart';
-import 'paysheet.dart' show StripePaymentResult, computeEffectiveMerchantArgs;
+import 'package:paysheet/paysheet.dart'
+    show StripePaymentResult, computeEffectiveMerchantArgs;
 import 'summary_line_item.dart';
 
 /// Composite widget that renders a compact set of payment method buttons.
@@ -16,6 +17,7 @@ class LearmondPayButtons extends StatelessWidget {
   final String amount;
   final String currency;
   final void Function(StripePaymentResult result)? onResult;
+  final Future<void> Function()? onPay;
   final bool showNativePay;
   final ButtonStyle? buttonStyle;
 
@@ -32,6 +34,7 @@ class LearmondPayButtons extends StatelessWidget {
     this.amount = '0.00',
     this.currency = 'USD',
     this.onResult,
+    this.onPay,
     this.showNativePay = true,
     this.buttonStyle,
   });
@@ -72,6 +75,7 @@ class LearmondPayButtons extends StatelessWidget {
                 clientSecret: clientSecret,
                 amount: amount,
                 onResult: onResult,
+                onPay: onPay,
                 buttonStyle: style,
                 merchantArgs: effectiveMerchantArgs,
               ),
@@ -84,6 +88,7 @@ class LearmondPayButtons extends StatelessWidget {
                 clientSecret: clientSecret,
                 amount: amount,
                 onResult: onResult,
+                onPay: onPay,
                 buttonStyle: style,
                 merchantArgs: effectiveMerchantArgs,
               ),
@@ -96,6 +101,7 @@ class LearmondPayButtons extends StatelessWidget {
                 clientSecret: clientSecret,
                 amount: amount,
                 onResult: onResult,
+                onPay: onPay,
                 buttonStyle: style,
                 merchantArgs: effectiveMerchantArgs,
               ),
@@ -118,6 +124,7 @@ class LearmondPayButtons extends StatelessWidget {
                   amount: amount,
                   currency: currency,
                   onResult: onResult,
+                  onPay: onPay,
                   buttonStyle: style.copyWith(
                     padding: WidgetStateProperty.all(
                         const EdgeInsets.symmetric(horizontal: 4.0)),
@@ -135,6 +142,7 @@ class LearmondPayButtons extends StatelessWidget {
                   amount: amount,
                   currency: currency,
                   onResult: onResult,
+                  onPay: onPay,
                   buttonStyle: style.copyWith(
                     padding: WidgetStateProperty.all(
                         const EdgeInsets.symmetric(horizontal: 4.0)),

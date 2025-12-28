@@ -53,6 +53,11 @@ class TestPage extends StatelessWidget {
                 merchantId: 'merchant.com.learmond.merchant.brand',
                 merchantName: 'The Learmond Corporation',
                 merchantInfo: 'Test Transaction',
+                summaryItems: const [
+                  SummaryLineItem(label: 'Subtotal', amountCents: 2000),
+                  SummaryLineItem(label: 'Tax', amountCents: 335),
+                  SummaryLineItem(label: 'Total', amountCents: 2335),
+                ],
               );
           return Center(
             child: Column(

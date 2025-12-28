@@ -26,19 +26,21 @@ class HomePage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text('Show Pay Sheet'),
           onPressed: () async {
-            final result = await LearmondPaySheet.show(
-              context: context,
+            final result = await showLpePaysheet(
+              context,
               publishableKey: 'pk_test_...', // Replace with your key
               clientSecret: 'pi_..._secret_...', // Replace with your secret
               method: 'card',
-              title: 'Pay \$10.00',
+              amount: '10.00',
             );
             if (context.mounted) {
+              final success = result?.success == true;
+              final message = success
+                  ? 'Payment succeeded!'
+                  : 'Payment failed: ${result?.errorMessage ?? (result?.error ?? 'Unknown error').replaceAll('_', ' ')}';
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(result.success
-                      ? 'Payment succeeded!'
-                      : 'Payment failed: ${result.errorMessage ?? (result.error ?? 'Unknown error').replaceAll('_', ' ')}'),
+                  content: Text(message),
                 ),
               );
             }

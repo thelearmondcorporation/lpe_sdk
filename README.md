@@ -8,7 +8,7 @@ This README documents the SDK's major features and how to integrate and inegrate
 - Composite payment widget: `LearmondPayButtons` (Card / Bank / Apple Pay / Google Pay)
 - Individual buttons: `LearmondCardButton`, `LearmondUSBankButton`, `LearmondEUBankButton`, `LearmondApplePayButton`, `LearmondGooglePayButton`, 
 `LearmondSourcePayButton`.
-- Programmatic pay sheet: `LearmondPaySheet.show(...)`
+ - Programmatic pay sheet: `showLpePaysheet(...)` (from the published `paysheet` package)
 - Native device pay bridge: `LearmondNativePay.showNativePay(...)`
 - Merchant args helpers: `buildMerchantArgs`, `buildMerchantArgsFromAmount`
 - Lightweight merchant-args editor: `Learmond.instance.presentMerchantArgs(...)` (used by the example/test app)
@@ -35,7 +35,7 @@ Optionally set global defaults with `LpeConfig` before `runApp(...)`:
 
 ```dart
 void main() {
-  LpeConfig.init(
+  LpeSDKConfig.init(
     appleMerchantId: 'merchant.com.example',
     googleGatewayMerchantId: 'yourGatewayMerchantId',
     defaultMerchantName: 'My Shop',
@@ -75,15 +75,18 @@ Use per-button widgets for custom layout and styling.
 
 ### Programmatic: Payment sheet
 
-Show the full Stripe-based sheet (webview) programmatically:
+Show the full Stripe-based sheet (webview) programmatically using the published `paysheet` API:
 
 ```dart
-final result = await LearmondPaySheet.show(
-  context: context,
+final result = await showLpePaysheet(
+  context,
   publishableKey: 'pk_test...',
   clientSecret: 'pi_..._secret_...',
+  method: 'card',
   amount: '10.00',
   merchantArgs: buildMerchantArgs(...),
+  // Optional: pass `onPay` (async hook) to run your payment flow when the paysheet requests it,
+  // and/or `onResult` to receive the final `StripePaymentResult` outcome.
 );
 ```
 

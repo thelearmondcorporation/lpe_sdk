@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'paysheet.dart'
-    show showLpePaysheet, StripePaymentResult, LearmondNativePay;
+import 'package:paysheet/paysheet.dart'
+    show showLpePaysheet, StripePaymentResult;
 // `dart:html` is used intentionally for the web helper. Suppress the analyzer
 // informational deprecation here because this code only runs on the web.
 // ignore: deprecated_member_use
@@ -22,6 +22,7 @@ Future<void> runWebPaymentRequest(
   required String amount,
   Map<String, dynamic>? merchantArgs,
   void Function(StripePaymentResult)? onResult,
+  Future<void> Function()? onPay,
 }) async {
   if (!kIsWeb) {
     await showLpePaysheet(
@@ -33,6 +34,7 @@ Future<void> runWebPaymentRequest(
       merchantArgs: merchantArgs,
       mountOnShow: true,
       enableStripeJs: true,
+      onPay: onPay,
       onResult: onResult,
     );
     return;
@@ -52,20 +54,22 @@ Future<void> runWebPaymentRequest(
       // web PaymentRequest / Google Pay logic to run instead of returning
       // a not-implemented error.
       try {
-        final double amt = double.tryParse(amount) ?? 0.0;
-        final int amountCents = (amt * 100).round();
-        final args = <String, dynamic>{
-          'method': method,
-          'publishableKey': publishableKey,
-          'merchantArgs': merchantArgs ?? <String, dynamic>{},
-          'amountCents': amountCents,
-          'amount': amount,
-          'currency': 'USD',
-        };
+        // parsed amount available if needed: final double amt = double.tryParse(amount) ?? 0.0;
 
-        final StripePaymentResult result =
-            await LearmondNativePay.showNativePay(args);
-        onResult?.call(result);
+        final StripePaymentResult? result = await showLpePaysheet(
+          context,
+          publishableKey: publishableKey,
+          clientSecret: clientSecret,
+          method: method,
+          amount: amount,
+          merchantArgs: merchantArgs,
+          mountOnShow: true,
+          enableStripeJs: true,
+          onPay: onPay,
+        );
+        onResult?.call(result ??
+            const StripePaymentResult(
+                success: false, error: 'payment_request_delegate_error'));
         return;
       } catch (e) {
         final err = e.toString();

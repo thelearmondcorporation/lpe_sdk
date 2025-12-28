@@ -10,9 +10,9 @@ export 'learmond.dart' show Learmond;
 export 'lpe_sdk_config.dart' show LpeSDKConfig;
 
 /// Exports the main payment sheet, native pay, and button widgets for SDK consumers.
-export 'paysheet.dart'
-    show LearmondPaySheet, LearmondNativePay, StripePaymentResult;
+export 'package:paysheet/paysheet.dart';
 export 'learmondpaybuttons.dart' show LearmondPayButtons;
+export 'learmond_native_pay.dart' show LearmondNativePay;
 export 'learmondindividualbuttons.dart'
     show
         LearmondIndividualButtons,

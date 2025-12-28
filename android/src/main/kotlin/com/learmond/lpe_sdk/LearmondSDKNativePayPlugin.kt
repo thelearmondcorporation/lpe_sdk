@@ -112,8 +112,18 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     // Build PaymentsClient
+    // Allow callers to override environment via args["environment"] = "TEST"|"PRODUCTION".
+    // Otherwise default to PRODUCTION for non-debuggable apps and TEST for debuggable apps.
+    val isDebuggable = (ctx.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    val envArg = (args["environment"] as? String)?.uppercase()
+    val env = when (envArg) {
+      "TEST" -> WalletConstants.ENVIRONMENT_TEST
+      "PRODUCTION" -> WalletConstants.ENVIRONMENT_PRODUCTION
+      else -> if (isDebuggable) WalletConstants.ENVIRONMENT_TEST else WalletConstants.ENVIRONMENT_PRODUCTION
+    }
+
     val paymentsClient: PaymentsClient = Wallet.getPaymentsClient(ctx, Wallet.WalletOptions.Builder()
-      .setEnvironment(WalletConstants.ENVIRONMENT_TEST)
+      .setEnvironment(env)
       .build())
 
     // Build PaymentDataRequest JSON according to Google Pay API

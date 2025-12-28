@@ -5,13 +5,10 @@ import 'src/html_stub.dart' if (dart.library.html) 'dart:html' as html;
 import 'src/js_util_stub.dart' if (dart.library.js) 'dart:js_util' as js_util;
 import 'merchant_arg_builder.dart';
 import 'summary_line_item.dart';
-import 'paysheet.dart'
-    show
-        StripePaymentResult,
-        showLpePaysheet,
-        showLpeNativePay,
-        computeEffectiveMerchantArgs;
-import 'web_run_payment_request.dart' show runWebPaymentRequest;
+import 'package:paysheet/paysheet.dart'
+    show StripePaymentResult, showLpePaysheet, computeEffectiveMerchantArgs;
+// web_run_payment_request not required by the native-pay buttons after migration
+import 'learmond_native_pay.dart' show LearmondNativePay;
 
 const double lpeButtonWidth = 110.0;
 
@@ -42,6 +39,7 @@ class LearmondCardButton extends StatelessWidget {
   final String? clientSecret;
   final String amount;
   final void Function(StripePaymentResult)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final String? label;
   final Map<String, dynamic>? merchantArgs;
@@ -55,6 +53,7 @@ class LearmondCardButton extends StatelessWidget {
     this.clientSecret,
     this.amount = '0.00',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
     this.label,
     this.merchantArgs,
@@ -96,6 +95,7 @@ class LearmondCardButton extends StatelessWidget {
           amount: amount,
           merchantArgs: _buildMerchantArgs(),
           mountOnShow: true,
+          onPay: onPay,
           onResult: (result) => _handlePaymentResult(context, result, onResult),
         ),
         style: style,
@@ -111,6 +111,7 @@ class LearmondUSBankButton extends StatelessWidget {
   final String? clientSecret;
   final String amount;
   final void Function(StripePaymentResult)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final String? label;
   final Map<String, dynamic>? merchantArgs;
@@ -124,6 +125,7 @@ class LearmondUSBankButton extends StatelessWidget {
     this.clientSecret,
     this.amount = '0.00',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
     this.label,
     this.merchantArgs,
@@ -165,6 +167,7 @@ class LearmondUSBankButton extends StatelessWidget {
           amount: amount,
           merchantArgs: _buildMerchantArgs(),
           mountOnShow: true,
+          onPay: onPay,
           onResult: (result) => _handlePaymentResult(context, result, onResult),
         ),
         style: style,
@@ -180,6 +183,7 @@ class LearmondEUBankButton extends StatelessWidget {
   final String? clientSecret;
   final String amount;
   final void Function(StripePaymentResult)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final String? label;
   final Map<String, dynamic>? merchantArgs;
@@ -193,6 +197,7 @@ class LearmondEUBankButton extends StatelessWidget {
     this.clientSecret,
     this.amount = '0.00',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
     this.label,
     this.merchantArgs,
@@ -234,6 +239,7 @@ class LearmondEUBankButton extends StatelessWidget {
           amount: amount,
           merchantArgs: _buildMerchantArgs(),
           mountOnShow: true,
+          onPay: onPay,
           onResult: (result) => _handlePaymentResult(context, result, onResult),
         ),
         style: style,
@@ -258,6 +264,7 @@ class LearmondApplePayButton extends StatelessWidget {
   final String amount;
   final String currency;
   final void Function(StripePaymentResult)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final Map<String, dynamic>? merchantArgs;
   final List<SummaryLineItem>? summaryItems;
@@ -271,6 +278,7 @@ class LearmondApplePayButton extends StatelessWidget {
     this.amount = '0.00',
     this.currency = 'USD',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
     this.merchantArgs,
     this.summaryItems,
@@ -290,7 +298,7 @@ class LearmondApplePayButton extends StatelessWidget {
     return SizedBox(
       width: lpeButtonWidth,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           final margs = buildMerchantArgs(
             merchantId: merchantId,
             merchantName: merchantName,
@@ -298,17 +306,19 @@ class LearmondApplePayButton extends StatelessWidget {
             summaryItems: summaryItems,
             builder: merchantArgs,
           );
-          showLpeNativePay(
-            context,
-            method: 'apple_pay',
-            publishableKey: publishableKey,
-            merchantId: merchantId,
-            merchantArgsParam: margs,
-            amount: amount,
-            currency: currency,
-            onResult: (result) =>
-                _handlePaymentResult(context, result, onResult),
-          );
+          final double amt = double.tryParse(amount) ?? 0.0;
+          final int amountCents = (amt * 100).round();
+          final args = <String, dynamic>{
+            'method': 'apple_pay',
+            'publishableKey': publishableKey ?? '',
+            'merchantArgs': margs ?? <String, dynamic>{},
+            'amountCents': amountCents,
+            'amount': amount,
+            'currency': currency,
+            'merchantId': merchantId,
+          };
+          final result = await LearmondNativePay.showNativePay(args);
+          _handlePaymentResult(context, result, onResult);
         },
         style: style,
         child: Row(
@@ -335,6 +345,7 @@ class LearmondGooglePayButton extends StatelessWidget {
   final String amount;
   final String currency;
   final void Function(StripePaymentResult)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final Map<String, dynamic>? merchantArgs;
   final List<SummaryLineItem>? summaryItems;
@@ -348,6 +359,7 @@ class LearmondGooglePayButton extends StatelessWidget {
     this.amount = '0.00',
     this.currency = 'USD',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
     this.merchantArgs,
     this.summaryItems,
@@ -410,30 +422,19 @@ class LearmondGooglePayButton extends StatelessWidget {
               summaryItems: summaryItems,
               builder: merchantArgs,
             );
-            if (kIsWeb) {
-              runWebPaymentRequest(
-                context,
-                publishableKey: publishableKey ?? '',
-                clientSecret: null,
-                method: 'google_pay',
-                amount: amount,
-                merchantArgs: margs,
-                onResult: (result) =>
-                    _handlePaymentResult(context, result, onResult),
-              );
-            } else {
-              showLpeNativePay(
-                context,
-                method: 'google_pay',
-                publishableKey: publishableKey,
-                googleGatewayMerchantId: googleGatewayMerchantId,
-                merchantArgsParam: margs,
-                amount: amount,
-                currency: currency,
-                onResult: (result) =>
-                    _handlePaymentResult(context, result, onResult),
-              );
-            }
+            final double amt = double.tryParse(amount) ?? 0.0;
+            final int amountCents = (amt * 100).round();
+            final args = <String, dynamic>{
+              'method': 'google_pay',
+              'publishableKey': publishableKey ?? '',
+              'merchantArgs': margs ?? <String, dynamic>{},
+              'amountCents': amountCents,
+              'amount': amount,
+              'currency': currency,
+              'gatewayMerchantId': googleGatewayMerchantId,
+            };
+            final result = await LearmondNativePay.showNativePay(args);
+            _handlePaymentResult(context, result, onResult);
           },
           style: style,
           child: const Center(
@@ -465,6 +466,7 @@ class LearmondIndividualButtons extends StatelessWidget {
   final String amount;
   final String currency;
   final void Function(StripePaymentResult result)? onResult;
+  final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
 
   const LearmondIndividualButtons({
@@ -480,6 +482,7 @@ class LearmondIndividualButtons extends StatelessWidget {
     this.amount = '0.00',
     this.currency = 'USD',
     this.onResult,
+    this.onPay,
     this.buttonStyle,
   });
 
@@ -542,6 +545,7 @@ class LearmondIndividualButtons extends StatelessWidget {
                   clientSecret: clientSecret,
                   amount: amount,
                   onResult: onResult,
+                  onPay: onPay,
                   buttonStyle: style,
                   merchantArgs: effectiveMerchantArgs,
                 ),
@@ -560,6 +564,7 @@ class LearmondIndividualButtons extends StatelessWidget {
                   clientSecret: clientSecret,
                   amount: amount,
                   onResult: onResult,
+                  onPay: onPay,
                   buttonStyle: style,
                   merchantArgs: effectiveMerchantArgs,
                 ),
@@ -576,6 +581,7 @@ class LearmondIndividualButtons extends StatelessWidget {
                   clientSecret: clientSecret,
                   amount: amount,
                   onResult: onResult,
+                  onPay: onPay,
                   buttonStyle: style,
                   merchantArgs: effectiveMerchantArgs,
                 ),
@@ -597,6 +603,7 @@ class LearmondIndividualButtons extends StatelessWidget {
                 amount: amount,
                 currency: currency,
                 onResult: onResult,
+                onPay: onPay,
                 buttonStyle: style.copyWith(
                   padding: WidgetStateProperty.all(
                       EdgeInsets.symmetric(horizontal: nativeSideMargin)),
@@ -613,6 +620,7 @@ class LearmondIndividualButtons extends StatelessWidget {
                 amount: amount,
                 currency: currency,
                 onResult: onResult,
+                onPay: onPay,
                 buttonStyle: style.copyWith(
                   padding: WidgetStateProperty.all(
                       EdgeInsets.symmetric(horizontal: nativeSideMargin)),
