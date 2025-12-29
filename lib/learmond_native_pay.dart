@@ -1,11 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:paysheet/paysheet.dart' show StripePaymentResult;
 
-/// Dart wrapper for the platform native-pay bridge (`lpe/native_pay`).
+/// Dart wrapper for the platform native-pay bridge (`lpe_sdk/native_pay`).
 /// Calls the platform implementation and normalizes the result into a
 /// `StripePaymentResult` instance used throughout the SDK.
 class LearmondNativePay {
-  static const MethodChannel _channel = MethodChannel('lpe/native_pay');
+  static const MethodChannel _channel = MethodChannel('lpe_sdk/native_pay');
 
   /// Present the native pay sheet on the device (Apple/Google) via
   /// platform channels. The `args` map should include at least:
@@ -30,14 +30,14 @@ class LearmondNativePay {
         );
       }
       return const StripePaymentResult(
-          success: false, error: 'native_pay_no_response');
+          success: false, error: 'No response', errorMessage: 'No response');
     } on PlatformException catch (e) {
       return StripePaymentResult(
           success: false, error: e.code, errorMessage: e.message);
     } catch (e) {
       return StripePaymentResult(
           success: false,
-          error: 'native_pay_error',
+          error: 'Native pay error.',
           errorMessage: e.toString());
     }
   }

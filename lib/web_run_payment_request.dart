@@ -69,13 +69,15 @@ Future<void> runWebPaymentRequest(
         );
         onResult?.call(result ??
             const StripePaymentResult(
-                success: false, error: 'payment_request_delegate_error'));
+                success: false,
+                error: 'Payment request failed',
+                errorMessage: 'Payment request failed'));
         return;
       } catch (e) {
         final err = e.toString();
         onResult?.call(StripePaymentResult(
           success: false,
-          error: 'payment_request_delegate_error',
+          error: 'Payment request failed',
           errorMessage: err,
         ));
         return;

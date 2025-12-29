@@ -113,6 +113,38 @@ Row(
 )
 ```
 
+### Using the `Learmond` singleton presenters
+
+If you prefer to present the same sheets programmatically (for example from
+non-widget logic or centralized UI flows), use the `Learmond.instance` helpers.
+
+Example — embed the single Card button directly in your widget tree:
+
+```dart
+// return the pre-styled card button from your build method:
+return Learmond.instance.presentCardButton(
+  context: context,
+  publishableKey: 'pk_test_...',
+  amount: '12.34',
+  merchantArgs: buildMerchantArgs(merchantName: 'My Shop'),
+  onResult: (r) { /* handle StripePaymentResult */ },
+);
+```
+
+You can also embed the composite or individual button groups directly in
+your widget tree:
+
+```dart
+// embed the composite pay buttons
+return Learmond.instance.presentLearmondPayButtons(context: context, amount: '9.99', merchantArgs: buildMerchantArgs(...));
+
+// or embed the individual buttons group
+return Learmond.instance.presentIndividualButtons(context: context, amount: '9.99', merchantArgs: buildMerchantArgs(...));
+```
+
+The presenter methods accept the same `onPay` and `onResult` parameters as the widgets.
+
+
 When you pass `summaryItems`, the paysheet HTML will render them above the element and prefer the provided total if present; always verify amounts server-side.```
 
 Notes:
@@ -169,14 +201,23 @@ See `example/apple_validation_server` for Node and Python example servers that d
 6) UX guidance:
 - Show clear errors for native availability checks (e.g., "Apple Pay is not available on this device").
 - UI: The plugin now displays the Apple icon followed by the text `Pay` (icon + label) for Apple Pay and uses the included Google Pay acceptance mark image for Google Pay. The GPay asset is included under `static/assets/GPay_Acceptance_Mark_800.png` and is bundled as a plugin asset. Buttons are white with consistent sizing by default.
- - Global initialization: You can set defaults for merchant ids used by native pay flows by calling:
-   ```dart
-   LpeSDKConfig.init(
-     appleMerchantId: 'merchant.com.yourdomain',
-     googleGatewayMerchantId: 'yourGatewayMerchantId',
-   );
-   ```
-   If you provide `merchantId` to `LearmondPayButtons` or directly to `LearmondNativePay.showNativePay`, those values take precedence.
+ - Global initialization: Set SDK defaults (Apple/Google merchant ids and optional display defaults) at app startup by calling `LpeSDKConfig.init(...)` before `runApp()` in your `main.dart`. Example:
+
+  ```dart
+  void main() {
+    WidgetsFlutterBinding.ensureInitialized();
+    LpeSDKConfig.init(
+      appleMerchantId: 'merchant.com.yourdomain',
+      googleMerchantId: 'yourGatewayMerchantId',
+      defaultMerchantName: 'My Shop',
+      defaultMerchantInfo: 'Order #',
+    );
+    runApp(const MyApp());
+  }
+  ```
+
+  Values provided directly to `LearmondPayButtons`, `Learmond.instance` presenters,
+  or `LearmondNativePay.showNativePay(...)` override these defaults.
 - Provide a fallback flow (card) when native pay is unavailable.
 
 7) Testing & security:
@@ -254,12 +295,12 @@ LearmondPayButtons(
 
 Direct native bridge usage
 
-If you need to call the native bridge directly (for example in a custom flow), the package exposes a MethodChannel under `lpe/native_pay`. The `LearmondNativePay` wrapper calls this channel for you and returns a `StripePaymentResult` (note: the published `StripePaymentResult` is minimal and does not include device-token payloads). If you require the raw device token map returned by the platform, call the MethodChannel directly and inspect the returned `raw` map:
+If you need to call the native bridge directly (for example in a custom flow), the package exposes a MethodChannel under `lpe_sdk/native_pay`. The `LearmondNativePay` wrapper calls this channel for you and returns a `StripePaymentResult` (note: the published `StripePaymentResult` is minimal and does not include device-token payloads). If you require the raw device token map returned by the platform, call the MethodChannel directly and inspect the returned `raw` map:
 
 ```dart
 import 'package:flutter/services.dart';
 
-final channel = MethodChannel('lpe/native_pay');
+final channel = MethodChannel('lpe_sdk/native_pay');
 final args = {
   'method': 'apple_pay',
   'merchantId': 'merchant.com.yourdomain',
@@ -354,7 +395,7 @@ flutter run
 The example demonstrates embedding `LearmondPayButtons` with live input fields for amount, publishable key, client secret, and merchant ID.
 ## Native Pay (Apple Pay / Google Pay) — Setup & Usage
 
-This package exposes a native MethodChannel bridge (`lpe/native_pay`) so apps can present device-native pay flows without performing on-device Stripe confirmation. The native flows return device tokens which your backend must exchange/confirm with your chosen payment gateway.
+This package exposes a native MethodChannel bridge (`lpe_sdk/native_pay`) so apps can present device-native pay flows without performing on-device Stripe confirmation. The native flows return device tokens which your backend must exchange/confirm with your chosen payment gateway.
 
 Summary of behavior
 - iOS (Apple Pay): presents `PKPaymentAuthorizationController`, returns the Apple payment token as base64 (`raw.paymentDataBase64`) and metadata (transaction identifier, payment method). Does NOT use Stripe on-device.

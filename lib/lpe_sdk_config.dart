@@ -16,16 +16,16 @@ class LpeSDKConfig {
   /// Google Pay gateway merchant id (gateway-specific merchant identifier)
   /// For Stripe gateway flows this may be a value you obtain from Google Pay
   /// console or your gateway configuration.
-  static String? googleGatewayMerchantId;
+  static String? googleMerchantId;
 
   /// Initialize common settings. Call once at app startup.
   static void init(
       {String? appleMerchantId,
-      String? googleGatewayMerchantId,
+      String? googleMerchantId,
       String? defaultMerchantName,
       String? defaultMerchantInfo}) {
     LpeSDKConfig.appleMerchantId = appleMerchantId;
-    LpeSDKConfig.googleGatewayMerchantId = googleGatewayMerchantId;
+    LpeSDKConfig.googleMerchantId = googleMerchantId;
     LpeSDKConfig.defaultMerchantName = defaultMerchantName;
     LpeSDKConfig.defaultMerchantInfo = defaultMerchantInfo;
   }

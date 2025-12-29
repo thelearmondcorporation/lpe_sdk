@@ -8,7 +8,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
   private var pendingResult: FlutterResult?
 
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "lpe/native_pay", binaryMessenger: registrar.messenger())
+    let channel = FlutterMethodChannel(name: "lpe_sdk/native_pay", binaryMessenger: registrar.messenger())
     let instance: LearmondSDKNativePayPlugin = LearmondSDKNativePayPlugin()
     instance.channel = channel
     registrar.addMethodCallDelegate(instance, channel: channel)
@@ -16,7 +16,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any] else {
-      result(["success": false, "error": "invalid_args"])
+      result(["success": false, "error": "Invalid arguments."])
       return
     }
 
@@ -41,7 +41,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
     case "apple_pay":
       // Validate merchant id (prefer nested merchantArgs)
       guard let merchantId = suppliedMerchantId, !merchantId.isEmpty else {
-        result(["success": false, "error": "missing_merchant_id"])
+        result(["success": false, "error": "Missing merchant ID."])
         return
       }
 
@@ -50,7 +50,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
       let canMakePayments = PKPaymentAuthorizationController.canMakePayments()
       let canMakePaymentsWithNetworks = PKPaymentAuthorizationController.canMakePayments(usingNetworks: supportedNetworks)
       if !canMakePayments || !canMakePaymentsWithNetworks {
-        result(["success": false, "error": "apple_pay_unavailable", "raw": ["canMakePayment": canMakePayments, "canMakePaymentUsingNetworks": canMakePaymentsWithNetworks]])
+        result(["success": false, "error": "Apple Pay unavailable.", "raw": ["canMakePayment": canMakePayments, "canMakePaymentUsingNetworks": canMakePaymentsWithNetworks]])
         return
       }
 
@@ -117,7 +117,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
 
       // Label the final total row with the merchant name (or 'Source')
       // as requested by the UI specification.
-      let finalLabel = (merchantArgs?["merchantName"] as? String) ?? (args["merchantName"] as? String) ?? displayMerchantName ?? "Source"
+      let finalLabel = (merchantArgs?["merchantName"] as? String) ?? (args["merchantName"] as? String) ?? displayMerchantName ?? "Your Name"
       let totalItem = PKPaymentSummaryItem(label: finalLabel, amount: totalAmount)
 
       // Append the supplied detail rows, then the explicit Total row so
@@ -158,7 +158,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
           if !presented {
             self.pendingResult?( [
               "success": false,
-              "error": "present_failed",
+              "error": "Present failed.",
               "raw": [
                 "canMakePayment": canMakePayments,
                 "canMakePaymentUsingNetworks": canMakePaymentsWithNetworks,
@@ -172,7 +172,7 @@ public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
       }
 
     default:
-      result(["success": false, "error": "unsupported_method"])
+      result(["success": false, "error": "Unsupported method."])
     }
     }
   }
@@ -202,7 +202,7 @@ extension LearmondSDKNativePayPlugin: PKPaymentAuthorizationControllerDelegate {
   public func paymentAuthorizationControllerDidFinish(_ controller: PKPaymentAuthorizationController) {
     // If the user dismissed without authorizing, return cancelled
     if let pending = pendingResult {
-      pending(["success": false, "error": "cancelled"]) 
+      pending(["success": false, "error": "Cancelled."]) 
       pendingResult = nil
     }
     controller.dismiss(completion: nil)

@@ -18,15 +18,18 @@ class MerchantArgsController {
 
   /// Creates a controller from individual merchant fields.
   factory MerchantArgsController({
-    String? merchantId,
+    String? appleMerchantId,
+    String? googleMerchantId,
     String? merchantName,
     String? merchantInfo,
-    String? gatewayMerchantId,
     List<SummaryLineItem>? summaryItems,
   }) {
     final m = <String, dynamic>{};
-    if (merchantId != null && merchantId.isNotEmpty) {
-      m['merchantId'] = merchantId;
+    if (appleMerchantId != null && appleMerchantId.isNotEmpty) {
+      m['appleMerchantId'] = appleMerchantId;
+    }
+    if (googleMerchantId != null && googleMerchantId.isNotEmpty) {
+      m['googleMerchantId'] = googleMerchantId;
     }
     if (merchantName != null && merchantName.isNotEmpty) {
       m['merchantName'] = merchantName;
@@ -34,9 +37,7 @@ class MerchantArgsController {
     if (merchantInfo != null && merchantInfo.isNotEmpty) {
       m['merchantInfo'] = merchantInfo;
     }
-    if (gatewayMerchantId != null && gatewayMerchantId.isNotEmpty) {
-      m['gatewayMerchantId'] = gatewayMerchantId;
-    }
+
     if (summaryItems != null && summaryItems.isNotEmpty) {
       m['summaryItems'] = summaryItems.map((s) => s.toJson()).toList();
     }

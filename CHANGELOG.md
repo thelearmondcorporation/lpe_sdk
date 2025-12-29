@@ -1,5 +1,5 @@
 
-## 4.1.0+6
+## 4.1.0+7
 - Fourth stable SDK release: public API, full dartdoc, CI, and improved metadata.
 - Unified payment sheet and button widgets for Stripe, Apple Pay, Google Pay, bank payments and Source Pay.
 - Example and INSTRUCTIONS updated for SDK consumers.
@@ -21,4 +21,5 @@
 * Apple Pay (web): implements server-backed merchant validation flow and added example merchant-validation proxy servers (Node and Python) in `example/apple_validation_server`.
 * Web pay: delegates PaymentRequest-capable browsers to the web plugin implementation so Google Pay flows run in Chrome/Edge and Apple Pay sessions can be started when available.
 * Implements the paysheet package for easy api acces to its onPay API.
+* Use the test_app/test_page to mount and test the buttons. 
 

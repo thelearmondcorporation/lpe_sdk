@@ -8,7 +8,7 @@ void main() {
   // provided explicitly by the caller.
   LpeSDKConfig.init(
     appleMerchantId: 'merchant.com.example',
-    googleGatewayMerchantId: 'yourGatewayMerchantId',
+    googleMerchantId: 'yourGatewayMerchantId',
   );
   runApp(const ExampleApp());
 }
@@ -35,7 +35,6 @@ class ExampleHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = buildMerchantArgs(
-      merchantId: 'merchant.com.example.merchant',
       merchantName: 'Example Merchant',
       merchantInfo: 'Example Transaction',
     );
@@ -47,8 +46,8 @@ class ExampleHome extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             LearmondApplePayButton(
-              merchantId:
-                  args?['merchantId'] ?? 'merchant.com.learmond.merchant.brand',
+              appleMerchantId:
+                  LpeSDKConfig.appleMerchantId ?? 'merchant.com.example',
               merchantArgs: args,
               amount: '10.00',
               currency: 'USD',
@@ -56,7 +55,8 @@ class ExampleHome extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             LearmondGooglePayButton(
-              googleGatewayMerchantId: args?['gatewayMerchantId'] as String?,
+              googleMerchantId:
+                  LpeSDKConfig.googleMerchantId ?? 'yourGatewayMerchantId',
               merchantArgs: args,
               amount: '10.00',
               currency: 'USD',

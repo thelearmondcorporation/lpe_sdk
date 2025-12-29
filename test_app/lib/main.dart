@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'test_page.dart';
+import 'package:lpe_sdk/lpe_sdk.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize SDK defaults (Apple/Google merchant ids) for the test app.
+  LpeSDKConfig.init(appleMerchantId: 'merchant.com.yourdomain');
   runApp(const MyApp());
 }
 

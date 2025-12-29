@@ -39,10 +39,11 @@ void clearMerchantArgsBuilder() {
 ///
 /// Returns a [Map<String, dynamic>] suitable for passing to payment sheet or native pay.
 Map<String, dynamic>? buildMerchantArgs({
-  String? merchantId,
+  String? appleMerchantId,
+  String? googleMerchantId,
+  String? sourceAccountId,
   String? merchantName,
   String? merchantInfo,
-  String? gatewayMerchantId,
   List<SummaryLineItem>? summaryItems,
   Map<String, dynamic>? builder,
 }) {
@@ -63,17 +64,20 @@ Map<String, dynamic>? buildMerchantArgs({
   }
 
   // Explicit params override fallback/defaults
-  if (merchantId != null && merchantId.isNotEmpty) {
-    ctrl.merge({'merchantId': merchantId});
+  if (appleMerchantId != null && appleMerchantId.isNotEmpty) {
+    ctrl.merge({'appleMerchantId': appleMerchantId});
+  }
+  if (googleMerchantId != null && googleMerchantId.isNotEmpty) {
+    ctrl.merge({'googleMerchantId': googleMerchantId});
+  }
+  if (sourceAccountId != null && sourceAccountId.isNotEmpty) {
+    ctrl.merge({'sourceAccountId': sourceAccountId});
   }
   if (merchantName != null && merchantName.isNotEmpty) {
     ctrl.merge({'merchantName': merchantName});
   }
   if (merchantInfo != null && merchantInfo.isNotEmpty) {
     ctrl.merge({'merchantInfo': merchantInfo});
-  }
-  if (gatewayMerchantId != null && gatewayMerchantId.isNotEmpty) {
-    ctrl.merge({'gatewayMerchantId': gatewayMerchantId});
   }
   if (summaryItems != null && summaryItems.isNotEmpty) {
     ctrl.merge({'summaryItems': summaryItems.map((s) => s.toJson()).toList()});
@@ -94,7 +98,8 @@ Map<String, dynamic>? buildMerchantArgs({
 /// Returns a [Map<String, dynamic>] with normalized summary and merchant info.
 Map<String, dynamic>? buildMerchantArgsFromAmount({
   required String amount,
-  String? merchantId,
+  String? appleMerchantId,
+  String? googleMerchantId,
   String? merchantName,
   String? merchantInfo,
   List<SummaryLineItem>? extraSummaryItems,
@@ -110,7 +115,8 @@ Map<String, dynamic>? buildMerchantArgsFromAmount({
     summary.addAll(extraSummaryItems);
   }
   return buildMerchantArgs(
-    merchantId: merchantId,
+    appleMerchantId: appleMerchantId,
+    googleMerchantId: googleMerchantId,
     merchantName: merchantName,
     merchantInfo: merchantInfo,
     summaryItems: summary,

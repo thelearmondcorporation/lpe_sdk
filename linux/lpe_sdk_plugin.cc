@@ -18,7 +18,7 @@ static void lpe_sdk_plugin_init(gpointer instance) {}
 
 void lpe_sdk_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
   FlMethodChannel* channel = fl_method_channel_new(
-      fl_plugin_registrar_get_messenger(registrar), "lpe/native_pay",
+      fl_plugin_registrar_get_messenger(registrar), "lpe_sdk/native_pay",
       FL_METHOD_CODEC(fl_standard_method_codec_new()));
 
   g_signal_connect(channel, "method-call", G_CALLBACK(lpe_sdk_plugin_handle_method_call), nullptr);

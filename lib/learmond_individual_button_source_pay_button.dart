@@ -9,7 +9,7 @@ import 'learmondindividualbuttons.dart' show lpeButtonWidth;
 /// Learmond Source Pay button — matches individual button sizing and style.
 class LearmondSourcePayButton extends StatelessWidget {
   final String? publishableKey;
-  final String? merchantId;
+  final String? sourceAccountId;
   final String? merchantName;
   final String? merchantInfo;
   final String amount;
@@ -23,7 +23,7 @@ class LearmondSourcePayButton extends StatelessWidget {
   const LearmondSourcePayButton({
     super.key,
     this.publishableKey,
-    this.merchantId,
+    this.sourceAccountId,
     this.merchantName,
     this.merchantInfo,
     this.amount = '0.00',
@@ -52,7 +52,7 @@ class LearmondSourcePayButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           final margs = buildMerchantArgs(
-            merchantId: merchantId,
+            sourceAccountId: sourceAccountId,
             merchantName: merchantName,
             merchantInfo: merchantInfo,
             summaryItems: summaryItems,

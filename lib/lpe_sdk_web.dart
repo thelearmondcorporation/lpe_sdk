@@ -18,7 +18,7 @@ class LpeSdkWeb {
   static void registerWith(Registrar registrar) {
     // `registrar.messenger` is deprecated but still required for legacy web plugins.
     final channel = MethodChannel(
-        'lpe/native_pay', const StandardMethodCodec(), registrar.messenger);
+        'lpe_sdk/native_pay', const StandardMethodCodec(), registrar.messenger);
     channel.setMethodCallHandler((call) async {
       if (call.method == 'presentNativePay') {
         final args = (call.arguments ?? <String, dynamic>{}) as Map;
@@ -42,7 +42,7 @@ Future<Map<String, dynamic>> _handlePresentNativePay(Map args) async {
       : <String, dynamic>{};
   final merchantName = (merchantArgs['merchantName'] ??
       args['merchantName'] ??
-      'The Learmond Corporation') as String;
+      'Your Name') as String;
 
   try {
     if (method == 'apple_pay') {
@@ -66,7 +66,7 @@ Future<Map<String, dynamic>> _handlePresentNativePay(Map args) async {
       if (validationEndpoint == null) {
         return {
           'success': false,
-          'error': 'merchant_validation_required',
+          'error': 'Merchant Validation required.',
           'canMakePayment': true
         };
       }
@@ -117,7 +117,7 @@ Future<Map<String, dynamic>> _handlePresentNativePay(Map args) async {
               } catch (e) {
                 // If parsing fails, attempt to forward raw text
                 js_util.callMethod(session, 'completeMerchantValidation', [
-                  js_util.jsify({'error': 'invalid_merchant_session'})
+                  js_util.jsify({'error': 'Invalid Merchant Session'})
                 ]);
               }
             }).catchError((err) {
@@ -346,7 +346,7 @@ Future<Map<String, dynamic>> _handlePresentNativePay(Map args) async {
       }
     }
 
-    return {'success': false, 'error': 'unsupported_method'};
+    return {'success': false, 'error': 'Unsupported method'};
   } catch (e) {
     return {'success': false, 'error': e.toString()};
   }

@@ -3,7 +3,7 @@ import Cocoa
 
 public class LearmondSDKNativePayPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "lpe/native_pay", binaryMessenger: registrar.messenger)
+    let channel = FlutterMethodChannel(name: "lpe_sdk/native_pay", binaryMessenger: registrar.messenger)
     let instance = LearmondSDKNativePayPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }

@@ -6,7 +6,7 @@ import 'src/js_util_stub.dart' if (dart.library.js) 'dart:js_util' as js_util;
 import 'merchant_arg_builder.dart';
 import 'summary_line_item.dart';
 import 'package:paysheet/paysheet.dart'
-    show StripePaymentResult, showLpePaysheet, computeEffectiveMerchantArgs;
+    show StripePaymentResult, showLpePaysheet;
 // web_run_payment_request not required by the native-pay buttons after migration
 import 'learmond_native_pay.dart' show LearmondNativePay;
 
@@ -258,7 +258,7 @@ class LearmondEUBankButton extends StatelessWidget {
 /// Button: Apple Pay
 class LearmondApplePayButton extends StatelessWidget {
   final String? publishableKey;
-  final String? merchantId;
+  final String? appleMerchantId;
   final String? merchantName;
   final String? merchantInfo;
   final String amount;
@@ -272,7 +272,7 @@ class LearmondApplePayButton extends StatelessWidget {
   const LearmondApplePayButton({
     super.key,
     this.publishableKey,
-    this.merchantId,
+    this.appleMerchantId,
     this.merchantName,
     this.merchantInfo,
     this.amount = '0.00',
@@ -300,7 +300,7 @@ class LearmondApplePayButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () async {
           final margs = buildMerchantArgs(
-            merchantId: merchantId,
+            appleMerchantId: appleMerchantId,
             merchantName: merchantName,
             merchantInfo: merchantInfo,
             summaryItems: summaryItems,
@@ -315,7 +315,7 @@ class LearmondApplePayButton extends StatelessWidget {
             'amountCents': amountCents,
             'amount': amount,
             'currency': currency,
-            'merchantId': merchantId,
+            'merchantId': appleMerchantId,
           };
           final result = await LearmondNativePay.showNativePay(args);
           _handlePaymentResult(context, result, onResult);
@@ -339,7 +339,7 @@ class LearmondApplePayButton extends StatelessWidget {
 /// Button: Google Pay
 class LearmondGooglePayButton extends StatelessWidget {
   final String? publishableKey;
-  final String? googleGatewayMerchantId;
+  final String? googleMerchantId;
   final String? merchantName;
   final String? merchantInfo;
   final String amount;
@@ -353,7 +353,7 @@ class LearmondGooglePayButton extends StatelessWidget {
   const LearmondGooglePayButton({
     super.key,
     this.publishableKey,
-    this.googleGatewayMerchantId,
+    this.googleMerchantId,
     this.merchantName,
     this.merchantInfo,
     this.amount = '0.00',
@@ -416,7 +416,7 @@ class LearmondGooglePayButton extends StatelessWidget {
               } catch (_) {}
             }
             final margs = buildMerchantArgs(
-              gatewayMerchantId: googleGatewayMerchantId,
+              googleMerchantId: googleMerchantId,
               merchantName: merchantName,
               merchantInfo: merchantInfo,
               summaryItems: summaryItems,
@@ -431,7 +431,7 @@ class LearmondGooglePayButton extends StatelessWidget {
               'amountCents': amountCents,
               'amount': amount,
               'currency': currency,
-              'gatewayMerchantId': googleGatewayMerchantId,
+              'googleMerchantId': googleMerchantId,
             };
             final result = await LearmondNativePay.showNativePay(args);
             _handlePaymentResult(context, result, onResult);
@@ -457,8 +457,8 @@ class LearmondGooglePayButton extends StatelessWidget {
 class LearmondIndividualButtons extends StatelessWidget {
   final String? publishableKey;
   final String? clientSecret;
-  final String? merchantId;
-  final String? googleGatewayMerchantId;
+  final String? appleMerchantId;
+  final String? googleMerchantId;
   final Map<String, dynamic>? merchantArgs;
   final String? merchantName;
   final String? merchantInfo;
@@ -473,8 +473,8 @@ class LearmondIndividualButtons extends StatelessWidget {
     super.key,
     this.publishableKey,
     this.clientSecret,
-    this.merchantId,
-    this.googleGatewayMerchantId,
+    this.appleMerchantId,
+    this.googleMerchantId,
     this.merchantArgs,
     this.merchantName,
     this.merchantInfo,
@@ -519,13 +519,13 @@ class LearmondIndividualButtons extends StatelessWidget {
           minimumSize: const Size(56, 40),
         );
 
-    final effectiveMerchantArgs = computeEffectiveMerchantArgs(
-      merchantArgs: merchantArgs,
-      amount: amount,
-      merchantId: merchantId,
+    final effectiveMerchantArgs = buildMerchantArgs(
+      appleMerchantId: appleMerchantId,
+      googleMerchantId: googleMerchantId,
       merchantName: merchantName,
       merchantInfo: merchantInfo,
       summaryItems: summaryItems,
+      builder: merchantArgs,
     );
 
     return Column(
@@ -598,7 +598,7 @@ class LearmondIndividualButtons extends StatelessWidget {
             SizedBox(
               width: nativeMinWidth,
               child: LearmondApplePayButton(
-                merchantId: merchantId,
+                appleMerchantId: appleMerchantId,
                 merchantArgs: effectiveMerchantArgs,
                 amount: amount,
                 currency: currency,
@@ -615,7 +615,7 @@ class LearmondIndividualButtons extends StatelessWidget {
             SizedBox(
               width: nativeMinWidth,
               child: LearmondGooglePayButton(
-                googleGatewayMerchantId: googleGatewayMerchantId,
+                googleMerchantId: googleMerchantId,
                 merchantArgs: effectiveMerchantArgs,
                 amount: amount,
                 currency: currency,

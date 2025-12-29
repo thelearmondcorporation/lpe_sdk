@@ -31,13 +31,17 @@ Note: The plugin uses native functionality for Apple/Google Pay; follow platform
 
 ## Initialization
 
-Optionally set global defaults with `LpeConfig` before `runApp(...)`:
+Set global defaults with `LpeSDKConfig.init(...)` at app startup so the SDK
+has Apple/Google merchant identifiers available for native flows. Call this
+before `runApp(...)` in your app `main.dart` (after any required
+`WidgetsFlutterBinding.ensureInitialized()`):
 
 ```dart
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   LpeSDKConfig.init(
     appleMerchantId: 'merchant.com.example',
-    googleGatewayMerchantId: 'yourGatewayMerchantId',
+    googleMerchantId: 'yourGoogleMerchantId',
     defaultMerchantName: 'My Shop',
     defaultMerchantInfo: 'Order',
   );
@@ -55,7 +59,8 @@ Use `LearmondPayButtons` to show a compact set of payment options; it handles wi
 LearmondPayButtons(
   publishableKey: 'pk_test_...',
   clientSecret: 'pi_..._secret_...',
-  merchantId: 'merchant.com.example',
+  appleMerchantId: 'merchant.com.example',
+  googleMerchantId: 'ABCD123459'
   merchantName: 'My Shop',
   merchantInfo: 'Order 1234',
   summaryItems: [
@@ -102,6 +107,31 @@ final res = await LearmondNativePay.showNativePay({
   'gatewayMerchantId': 'yourGatewayMerchantId',
 });
 ```
+
+### Programmatic: Singleton presenters (convenience)
+
+The SDK exposes a `Learmond` singleton with presenter helpers that show the same
+button sets or single-button sheets used by the widgets. Use these when you want
+to present the sheet from non-widget code or centralize presentation logic.
+
+Example — present the single Card button sheet:
+
+```dart
+Learmond.instance.presentCardButton(
+  context: context,
+  publishableKey: 'pk_test_...',
+  amount: '9.99',
+  merchantArgs: buildMerchantArgs(merchantName: 'My Shop'),
+  onResult: (res) { /* handle StripePaymentResult */ },
+);
+```
+
+show single-method sheets.
+ - `Learmond.instance.presentLearmondPayButtons(...)` — embed the composite pay buttons widget.
+ - `Learmond.instance.presentIndividualButtons(...)` — embed the individual buttons group widget.
+ - `Learmond.instance.presentApplePayButton(...)`, `presentGooglePayButton(...)`, `presentUSBankButton(...)`, `presentEUBankButton(...)`, `presentSourcePayButton(...)` — embed the single-method button widgets.
+
+Use the same `onPay` (async pre-pay hook) and `onResult` callback parameters as the widgets.
 
 ## Web Support (Google Pay & Apple Pay)
 

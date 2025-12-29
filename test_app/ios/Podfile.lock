@@ -1,15 +1,7 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_inappwebview_ios (0.0.1):
-    - Flutter
-    - flutter_inappwebview_ios/Core (= 0.0.1)
-    - OrderedSet (~> 6.0.3)
-  - flutter_inappwebview_ios/Core (0.0.1):
-    - Flutter
-    - OrderedSet (~> 6.0.3)
   - lpe_sdk (0.0.4):
     - Flutter
-  - OrderedSet (6.0.3)
   - Stripe (24.23.3):
     - StripeApplePay (= 24.23.3)
     - StripeCore (= 24.23.3)
@@ -71,14 +63,12 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - lpe_sdk (from `.symlinks/plugins/lpe_sdk/ios`)
   - stripe_ios (from `.symlinks/plugins/stripe_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
-    - OrderedSet
     - Stripe
     - StripeApplePay
     - StripeCore
@@ -91,8 +81,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  flutter_inappwebview_ios:
-    :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
   lpe_sdk:
     :path: ".symlinks/plugins/lpe_sdk/ios"
   stripe_ios:
@@ -102,9 +90,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
   lpe_sdk: 212157d4a05968f2c54762f8996f79e9b3bd7750
-  OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   Stripe: a4b6584549bac3698733ed564e55b0b067cfda8a
   stripe_ios: 333911eec3379d06d757c16807628ef637916e8c
   StripeApplePay: c8b005f1b5a242c455f76b42eda08660e9e33102

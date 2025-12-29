@@ -9,7 +9,7 @@ class LpeSdkPlugin : public flutter::Plugin {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar) {
     auto channel = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-        registrar->messenger(), "lpe/native_pay",
+        registrar->messenger(), "lpe_sdk/native_pay",
         &flutter::StandardMethodCodec::GetInstance());
 
     channel->SetMethodCallHandler(

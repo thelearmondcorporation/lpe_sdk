@@ -42,7 +42,7 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
   override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     context = binding.applicationContext
-    channel = MethodChannel(binding.binaryMessenger, "lpe/native_pay")
+    channel = MethodChannel(binding.binaryMessenger, "lpe_sdk/native_pay")
     channel.setMethodCallHandler(this)
   }
 
@@ -90,7 +90,7 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
   private fun handlePresentNativePay(call: MethodCall, result: Result) {
     val args = call.arguments as? Map<*, *>
     if (args == null) {
-      result.success(mapOf("success" to false, "error" to "invalid_args"))
+      result.success(mapOf("success" to false, "error" to "Invalid arguments."))
       return
     }
 
@@ -98,7 +98,7 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
     when (method) {
       "google_pay" -> presentGooglePay(args, result)
-      else -> result.success(mapOf("success" to false, "error" to "unsupported_method"))
+      else -> result.success(mapOf("success" to false, "error" to "Unsupported method."))
     }
   }
 
@@ -107,7 +107,7 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
     val ctx = context
     val act = activity
     if (ctx == null || act == null) {
-      result.success(mapOf("success" to false, "error" to "no_activity"))
+      result.success(mapOf("success" to false, "error" to "No activity."))
       return
     }
 
@@ -334,7 +334,7 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
           }
         }
         Activity.RESULT_CANCELED -> {
-          res.success(mapOf("success" to false, "error" to "cancelled"))
+          res.success(mapOf("success" to false, "error" to "Cancelled"))
         }
         else -> {
           // Try to extract status code
