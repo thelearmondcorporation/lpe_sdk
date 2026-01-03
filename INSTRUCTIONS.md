@@ -3,9 +3,11 @@
 ## Overview
 Learmond Pay Element (LPE) SDK provides a reusable Paysheet for any app framework. It uses a modal bottom sheet to securely collect payment details and confirm payments. Built for modern payment flows.
 
+Note: The SDK now re-exports merchant-args utilities and `SummaryLineItem` from the published `lpe` package. The published `paysheet` API (`Paysheet.instance.present`) is used to render the sheet, and `UIAdjust` is used to inject input fields (card number / expiry / CVC, routing/account, IBAN) into the paysheet body.
+
 ## Main Operations
-**showLpePaysheet(...)** (from the published `paysheet` package): Main entry point. Presents the paysheet and returns a PaymentResult, `StripePaymentResult` (or your PSP Provider).
-**StripePaymentResult**: Published package returns a minimal result object (commonly `success`, optional `error` and `errorMessage`). For native/pay-token flows your code should rely on the `onPay` hook to receive and send tokens to your server, and handle final outcome via `onResult`.
+**sPaysheet.instance.present(...)** (from the published `paysheet` package): Main entry point. Presents the paysheet and returns a PaymentResult, `PaymentResult` (or your PSP Provider).
+**PaymentResult**: Published package returns a minimal result object (commonly `success`, optional `error` and `errorMessage`). For native/pay-token flows your code should rely on the `onPay` hook to receive and send tokens to your server, and handle final outcome via `onResult`.
 **Supported methods**: 'card', 'us_bank', 'eu_bank', 'apple_pay', 'google_pay', 'source_pay'.
 **FlutterUI**: Used to render secure payment elements.
 
@@ -27,7 +29,7 @@ import 'package:lpe_sdk/lpe_sdk.dart';
 ```dart
 final result = await showLpePaysheet(
   context,
-  publishableKey: 'your_publishable_key',
+  apiKey: 'your_publishable_key',
   clientSecret: 'your_client_secret',
   method: 'card', // or 'us_bank', 'eu_bank', 'apple_pay', 'google_pay', 'source_pay'
   amount: '10.00',
@@ -36,7 +38,7 @@ final result = await showLpePaysheet(
   onPay: () async {
     // fetch client secret or send token to your server here
   },
-  // Optional: onResult receives the final StripePaymentResult outcome
+  // Optional: onResult receives the final PaymentResult outcome
   onResult: (res) {
     if (res.success) {
       // handle success
@@ -54,7 +56,7 @@ For most apps we recommend embedding the `LearmondPayButtons` widget directly in
 
 ```dart
 LearmondPayButtons(
-  publishableKey: 'pk_test_...', // optional fallback
+  apiKey: 'api_test_...', // optional fallback
   clientSecret: 'pi_test_client_secret', // optional
   merchantId: 'merchant.com.yourdomain', // required for Apple Pay
   amount: '10.00',
@@ -66,9 +68,9 @@ LearmondPayButtons(
   onPay: () async {
     // fetch client secret, send token to server, or perform other async work
   },
-  onResult: (StripePaymentResult r) {
+  onResult: (PaymentResult r) {
     if (r.success) {
-      // Handle success. Note: published `StripePaymentResult` is minimal;
+      // Handle success. Note: published `PaymentResult` is minimal;
       // continue to inspect server-side confirmations if you used `onPay`.
     } else {
       // Handle error r.error or r.errorMessage
@@ -82,7 +84,7 @@ If you want direct control over placement or styling, you can instantiate indivi
 Row(
   children: [
     LearmondCardButton(
-      publishableKey: 'pk_test_...',
+      apiKey: 'api_test_...',
       clientSecret: 'pi_test_client_secret',
       amount: '10.00',
       merchantName: 'My Shop',
@@ -124,10 +126,10 @@ Example — embed the single Card button directly in your widget tree:
 // return the pre-styled card button from your build method:
 return Learmond.instance.presentCardButton(
   context: context,
-  publishableKey: 'pk_test_...',
+  apiKey: 'api_test_...',
   amount: '12.34',
   merchantArgs: buildMerchantArgs(merchantName: 'My Shop'),
-  onResult: (r) { /* handle StripePaymentResult */ },
+  onResult: (r) { /* handle PaymentResult */ },
 );
 ```
 
@@ -149,7 +151,7 @@ When you pass `summaryItems`, the paysheet HTML will render them above the eleme
 
 Notes:
 - The widget uses a responsive layout (three buttons on the first row, two centered buttons on the second row) and keeps consistent button sizing.
-- Use `onResult` to process the returned `StripePaymentResult` whether the flow was web-based (card/bank) or native (apple/google). Native flows return raw tokens in `result.rawResult` which you MUST send to your server for verification.
+- Use `onResult` to process the returned `PaymentResult` whether the flow was web-based (card/bank) or native (apple/google). Native flows return raw tokens in `result.rawResult` which you MUST send to your server for verification.
 - Do not rely on client-supplied amounts — always verify amounts server-side.
 
 ### Embedding `LearmondPayButtons` into your UI (step-by-step)
@@ -164,12 +166,12 @@ import 'package:lpe/lpe.dart';
 
 ```dart
 LearmondPayButtons(
-  publishableKey: 'pk_test_...', // optional fallback
+  apiKey: 'api_test_...', // optional fallback
   clientSecret: 'pi_test_client_secret', // optional (used by web flows)
   merchantId: 'merchant.com.yourdomain', // required for Apple Pay
   amount: '10.00', // display amount; server must verify final amount
   currency: 'USD',
-  onResult: (StripePaymentResult r) {
+  onResult: (PaymentResult r) {
     if (r.success) {
       // Payment succeeded. You may have r.paymentIntentId or r.rawResult (native token)
     } else {
@@ -179,10 +181,10 @@ LearmondPayButtons(
 )
 ```
 
-3) Pass dynamic values from your form (amount, merchantId, publishableKey, clientSecret). If you use `TextField` controllers, call `setState()` in `onChanged` so the widget rebuilds with the latest inputs.
+3) Pass dynamic values from your form (amount, merchantId, apiKey, clientSecret). If you use `TextField` controllers, call `setState()` in `onChanged` so the widget rebuilds with the latest inputs.
 
 4) Handling the `onResult` callback:
-- For web-based card and bank flows `StripePaymentResult` usually includes `success`, `status`, and `paymentIntentId`.
+- For web-based card and bank flows `PaymentResult` usually includes `success`, `status`, and `paymentIntentId`.
 - For native Apple/Google Pay flows the widget returns a `rawResult` containing the device token (Apple: `paymentDataBase64`; Google: `paymentToken`/`paymentDataJson`). **Send these tokens to your server** and finalize the payment there using your payment gateway's API.
 
 5) Apple Pay & Google Pay setup reminders:
@@ -253,7 +255,7 @@ final clientSecret = jsonDecode(resp.body)['client_secret'];
 
 final result = await LearmondPaySheet.show(
   context: context,
-  publishableKey: 'pk_test_...',
+  apiKey: 'api_test_...',
   clientSecret: clientSecret,
   method: 'card',
   title: 'Pay \$10.00',
@@ -270,7 +272,7 @@ Native device pay (Apple Pay / Google Pay)
 
 The SDK provides a Dart wrapper around the platform native-pay bridge: `LearmondNativePay.showNativePay(...)`.
 
-Recommended flow (preferred): use the paysheet's `onPay` async hook so the paysheet can request the host app to perform server-side work (exchange device tokens with your backend) before finishing the flow. This keeps token exchange and verification on the server and avoids embedding raw tokens in the published `StripePaymentResult`.
+Recommended flow (preferred): use the paysheet's `onPay` async hook so the paysheet can request the host app to perform server-side work (exchange device tokens with your backend) before finishing the flow. This keeps token exchange and verification on the server and avoids embedding raw tokens in the published `PaymentResult`.
 
 Example — using the `onPay` hook (recommended):
 
@@ -287,7 +289,7 @@ LearmondPayButtons(
     );
   },
   onResult: (r) {
-    // The published StripePaymentResult is minimal — use onPay for
+    // The published PaymentResult is minimal — use onPay for
     // device-token exchanges and server confirmations.
   },
 )
@@ -295,7 +297,7 @@ LearmondPayButtons(
 
 Direct native bridge usage
 
-If you need to call the native bridge directly (for example in a custom flow), the package exposes a MethodChannel under `lpe_sdk/native_pay`. The `LearmondNativePay` wrapper calls this channel for you and returns a `StripePaymentResult` (note: the published `StripePaymentResult` is minimal and does not include device-token payloads). If you require the raw device token map returned by the platform, call the MethodChannel directly and inspect the returned `raw` map:
+If you need to call the native bridge directly (for example in a custom flow), the package exposes a MethodChannel under `lpe_sdk/native_pay`. The `LearmondNativePay` wrapper calls this channel for you and returns a `PaymentResult` (note: the published `PaymentResult` is minimal and does not include device-token payloads). If you require the raw device token map returned by the platform, call the MethodChannel directly and inspect the returned `raw` map:
 
 ```dart
 import 'package:flutter/services.dart';
@@ -326,12 +328,12 @@ if (resp is Map && resp['success'] == true) {
 }
 ```
 
-Note: The Kotlin/Swift plugin implementations return a `raw` map containing device-token payloads (Apple: `paymentDataBase64`, Google: `paymentToken`/`paymentDataJson`). The published `StripePaymentResult` returned by `LearmondNativePay.showNativePay` is intentionally minimal — use `onPay` or the platform channel approach above to obtain raw token payloads for server-side exchange.
+Note: The Kotlin/Swift plugin implementations return a `raw` map containing device-token payloads (Apple: `paymentDataBase64`, Google: `paymentToken`/`paymentDataJson`). The published `PaymentResult` returned by `LearmondNativePay.showNativePay` is intentionally minimal — use `onPay` or the platform channel approach above to obtain raw token payloads for server-side exchange.
 
 Note: The Kotlin plugin reads `merchantArgs` and will prefer `merchantArgs.summaryItems` and `merchantArgs.merchantName` when building the Google Pay request; Apple Pay also honors `summaryItems` and `merchantName`.
 Using `LearmondPayButtons`'s `onResult`
 
-If you embed `LearmondPayButtons`, prefer handling payments in the `onResult` callback — the widget will call the correct flow for each method and return a `StripePaymentResult`. For native flows `r.rawResult` contains the device token to send to your server.
+If you embed `LearmondPayButtons`, prefer handling payments in the `onResult` callback — the widget will call the correct flow for each method and return a `PaymentResult`. For native flows `r.rawResult` contains the device token to send to your server.
 
 ```dart
 LearmondPayButtons(
@@ -585,7 +587,7 @@ Communication between Flutter and JS is handled via `window.flutter_inappwebview
     export 'lpe_sdk_config.dart' show LpeSDKConfig;
     // Prefer importing the published paysheet package directly to avoid
     // ambiguous exports and to use the published API (showLpePaysheet).
-    export 'package:paysheet/paysheet.dart' show showLpePaysheet, StripePaymentResult;
+    export 'package:paysheet/paysheet.dart' show showLpePaysheet, PaymentResult;
     export 'learmondpaybuttons.dart' show LearmondPayButtons;
   ```
 

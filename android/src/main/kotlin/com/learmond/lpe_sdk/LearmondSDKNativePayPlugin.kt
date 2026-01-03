@@ -239,15 +239,15 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
       // Tokenization: support PAYMENT_GATEWAY tokenization for common gateways.
       val tokenizationSpec = JSONObject()
       val gateway = (args["gateway"] as? String)?.lowercase() ?: ""
-      val publishableKey = (args["publishableKey"] as? String) ?: ""
+      val apiKey = (args["apiKey"] as? String) ?: ""
       val gatewayMerchantId = (args["gatewayMerchantId"] as? String) ?: ""
 
-      if (publishableKey.isNotEmpty()) {
+      if (apiKey.isNotEmpty()) {
         // Prefer Stripe gateway tokenization when a publishable key is provided
         tokenizationSpec.put("type", "PAYMENT_GATEWAY")
         val tokenParams = JSONObject()
         tokenParams.put("gateway", "stripe")
-        tokenParams.put("stripe:publishableKey", publishableKey)
+        tokenParams.put("stripe:apiKey", apiKey)
         // Specify a stripe API version that is compatible with client tokenization
         tokenParams.put("stripe:version", "2020-08-27")
         if (gatewayMerchantId.isNotEmpty()) tokenParams.put("gatewayMerchantId", gatewayMerchantId)
@@ -255,8 +255,8 @@ class LearmondSDKNativePayPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
 
         // Debug: log tokenization spec details (mask publishable key)
         try {
-          val maskedPk = if (publishableKey.length > 8) publishableKey.substring(0,4) + "..." + publishableKey.takeLast(4) else publishableKey
-          android.util.Log.d("LpeNativePay", "tokenizationSpec: gateway=stripe, stripe_version=${tokenParams.optString("stripe:version")}, stripe_publishableKey_masked=${maskedPk}, gatewayMerchantId=${tokenParams.optString("gatewayMerchantId")} )")
+          val maskedPk = if (apiKey.length > 8) apiKey.substring(0,4) + "..." + apiKey.takeLast(4) else apiKey
+          android.util.Log.d("LpeNativePay", "tokenizationSpec: gateway=stripe, stripe_version=${tokenParams.optString("stripe:version")}, stripe_apiKey_masked=${maskedPk}, gatewayMerchantId=${tokenParams.optString("gatewayMerchantId")} )")
         } catch (e: Exception) { }
       } else if (gateway.isNotEmpty() && gateway != "example") {
         tokenizationSpec.put("type", "PAYMENT_GATEWAY")

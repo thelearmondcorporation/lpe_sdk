@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:paysheet/paysheet.dart'
-    show showLpePaysheet, StripePaymentResult;
+import 'package:paysheet/paysheet.dart' show PaymentResult, Paysheet;
 // `dart:html` is used intentionally for the web helper. Suppress the analyzer
 // informational deprecation here because this code only runs on the web.
 // ignore: deprecated_member_use
@@ -16,19 +15,17 @@ import 'src/js_util_stub.dart' if (dart.library.js) 'dart:js_util' as js_util;
 /// crashing.
 Future<void> runWebPaymentRequest(
   BuildContext context, {
-  required String publishableKey,
+  required String apiKey,
   String? clientSecret,
   required String method,
   required String amount,
   Map<String, dynamic>? merchantArgs,
-  void Function(StripePaymentResult)? onResult,
+  void Function(PaymentResult)? onResult,
   Future<void> Function()? onPay,
 }) async {
   if (!kIsWeb) {
-    await showLpePaysheet(
+    await Paysheet.instance.present(
       context,
-      publishableKey: publishableKey,
-      clientSecret: clientSecret,
       method: method,
       amount: amount,
       merchantArgs: merchantArgs,
@@ -56,10 +53,8 @@ Future<void> runWebPaymentRequest(
       try {
         // parsed amount available if needed: final double amt = double.tryParse(amount) ?? 0.0;
 
-        final StripePaymentResult? result = await showLpePaysheet(
+        final PaymentResult? result = await Paysheet.instance.present(
           context,
-          publishableKey: publishableKey,
-          clientSecret: clientSecret,
           method: method,
           amount: amount,
           merchantArgs: merchantArgs,
@@ -68,14 +63,14 @@ Future<void> runWebPaymentRequest(
           onPay: onPay,
         );
         onResult?.call(result ??
-            const StripePaymentResult(
+            const PaymentResult(
                 success: false,
                 error: 'Payment request failed',
                 errorMessage: 'Payment request failed'));
         return;
       } catch (e) {
         final err = e.toString();
-        onResult?.call(StripePaymentResult(
+        onResult?.call(PaymentResult(
           success: false,
           error: 'Payment request failed',
           errorMessage: err,
@@ -99,7 +94,7 @@ Future<void> runWebPaymentRequest(
     ),
   );
 
-  const fallback = StripePaymentResult(
+  const fallback = PaymentResult(
     success: false,
     error: 'web_payment_unavailable',
     errorMessage:

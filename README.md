@@ -2,13 +2,15 @@
 
 A reusable Flutter SDK that provides a unified UI and helpers for collecting payments via stripe Elements, Apple Pay, Google Pay and the Source Pay button.
 
-This README documents the SDK's major features and how to integrate and inegrate the package.
+This README documents the SDK's major features and how to integrate the package.
+
+Note: Recent changes migrated merchant-args helpers to the published `lpe` package and updated paysheet usage to `Paysheet.instance.present(...)`. The SDK now prefers `apiKey` naming for publishable keys and injects input fields into the paysheet via `UIAdjust`.
 
 ## Major features
 - Composite payment widget: `LearmondPayButtons` (Card / Bank / Apple Pay / Google Pay)
-- Individual buttons: `LearmondCardButton`, `LearmondUSBankButton`, `LearmondEUBankButton`, `LearmondApplePayButton`, `LearmondGooglePayButton`, 
+- Individual buttons: `LearmondCardButton`, `LearmondUSBankButton`, `LearmondEUBankButton`, `LearmondApplePayButton`, `LearmondGooglePayButton`,
 `LearmondSourcePayButton`.
- - Programmatic pay sheet: `showLpePaysheet(...)` (from the published `paysheet` package)
+- Programmatic pay sheet: use `Paysheet.instance.present(...)` (published `paysheet` package). The SDK injects card/bank input fields using `UIAdjust` when presenting the paysheet.
 - Native device pay bridge: `LearmondNativePay.showNativePay(...)`
 - Merchant args helpers: `buildMerchantArgs`, `buildMerchantArgsFromAmount`
 - Lightweight merchant-args editor: `Learmond.instance.presentMerchantArgs(...)` (used by the example/test app)
@@ -57,7 +59,7 @@ Use `LearmondPayButtons` to show a compact set of payment options; it handles wi
 
 ```dart
 LearmondPayButtons(
-  publishableKey: 'pk_test_...',
+  apiKey: 'api_test_...',
   clientSecret: 'pi_..._secret_...',
   appleMerchantId: 'merchant.com.example',
   googleMerchantId: 'ABCD123459'
@@ -85,13 +87,13 @@ Show the full Stripe-based sheet (webview) programmatically using the published 
 ```dart
 final result = await showLpePaysheet(
   context,
-  publishableKey: 'pk_test...',
+  apiKey: 'api_test...',
   clientSecret: 'pi_..._secret_...',
   method: 'card',
   amount: '10.00',
   merchantArgs: buildMerchantArgs(...),
   // Optional: pass `onPay` (async hook) to run your payment flow when the paysheet requests it,
-  // and/or `onResult` to receive the final `StripePaymentResult` outcome.
+  // and/or `onResult` to receive the final `PaymentResult` outcome.
 );
 ```
 
@@ -119,10 +121,10 @@ Example — present the single Card button sheet:
 ```dart
 Learmond.instance.presentCardButton(
   context: context,
-  publishableKey: 'pk_test_...',
+  apiKey: 'api_test_...',
   amount: '9.99',
   merchantArgs: buildMerchantArgs(merchantName: 'My Shop'),
-  onResult: (res) { /* handle StripePaymentResult */ },
+  onResult: (res) { /* handle PaymentResult */ },
 );
 ```
 
@@ -145,7 +147,7 @@ Example usage (pass validation endpoint in `merchantArgs`):
 ```dart
 runWebPaymentRequest(
   context,
-  publishableKey: 'pk_test_...',
+  apiKey: 'api_test_...',
   method: 'apple_pay',
   amount: '10.00',
   merchantArgs: {

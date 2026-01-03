@@ -229,7 +229,7 @@ Future<Map<String, dynamic>> _handlePresentNativePay(Map args) async {
                       'parameters': js_util.jsify({
                         'gateway': 'stripe',
                         'stripe:version': '2020-08-27',
-                        'stripe:publishableKey': args['publishableKey'] ?? ''
+                        'stripe:apiKey': args['apiKey'] ?? ''
                       })
                     })
                   }
@@ -279,7 +279,7 @@ Future<Map<String, dynamic>> _handlePresentNativePay(Map args) async {
                     'type': 'PAYMENT_GATEWAY',
                     'parameters': js_util.jsify({
                       'gateway': 'stripe',
-                      'stripe:publishableKey': args['publishableKey'] ?? ''
+                      'stripe:apiKey': args['apiKey'] ?? ''
                     })
                   })
                 }

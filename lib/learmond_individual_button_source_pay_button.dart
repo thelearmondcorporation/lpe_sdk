@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'merchant_arg_builder.dart';
-import 'package:paysheet/paysheet.dart'
-    show StripePaymentResult, showLpePaysheet;
-import 'summary_line_item.dart' show SummaryLineItem;
+import 'package:lpe/lpe.dart' show buildMerchantArgs, SummaryLineItem;
+import 'package:paysheet/paysheet.dart' show PaymentResult, Paysheet;
 import 'learmondindividualbuttons.dart' show lpeButtonWidth;
 
 /// Learmond Source Pay button — matches individual button sizing and style.
 class LearmondSourcePayButton extends StatelessWidget {
-  final String? publishableKey;
+  final String? apiKey;
   final String? sourceAccountId;
   final String? merchantName;
   final String? merchantInfo;
   final String amount;
   final String currency;
-  final void Function(StripePaymentResult)? onResult;
+  final void Function(PaymentResult)? onResult;
   final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final Map<String, dynamic>? merchantArgs;
@@ -22,7 +20,7 @@ class LearmondSourcePayButton extends StatelessWidget {
 
   const LearmondSourcePayButton({
     super.key,
-    this.publishableKey,
+    this.apiKey,
     this.sourceAccountId,
     this.merchantName,
     this.merchantInfo,
@@ -50,36 +48,33 @@ class LearmondSourcePayButton extends StatelessWidget {
     return SizedBox(
       width: lpeButtonWidth,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           final margs = buildMerchantArgs(
-            sourceAccountId: sourceAccountId,
+            merchantId: sourceAccountId,
             merchantName: merchantName,
             merchantInfo: merchantInfo,
             summaryItems: summaryItems,
             builder: merchantArgs,
           );
-
-          showLpePaysheet(
+          final result = await Paysheet.instance.present(
             context,
             method: 'source_pay',
-            publishableKey: publishableKey ?? '',
-            clientSecret: '',
             amount: amount,
             merchantArgs: margs,
             mountOnShow: true,
             onPay: onPay,
-            onResult: (result) {
-              try {
-                if (onResult != null) onResult!(result);
-              } catch (_) {}
-              final message = result.errorMessage ?? result.error ?? '';
-              if (message.isNotEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(message)),
-                );
-              }
-            },
           );
+          if (result != null) {
+            try {
+              if (onResult != null) onResult!(result);
+            } catch (_) {}
+            final message = result.errorMessage ?? result.error ?? '';
+            if (message.isNotEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(message)),
+              );
+            }
+          }
         },
         style: style,
         child: Row(

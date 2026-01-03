@@ -11,25 +11,26 @@ export 'lpe_sdk_config.dart' show LpeSDKConfig;
 
 /// Exports the main payment sheet, native pay, and button widgets for SDK consumers.
 export 'package:paysheet/paysheet.dart';
-export 'learmondpaybuttons.dart' show LearmondPayButtons;
+export 'package:lpe/lpe.dart' show LearmondPayButtons;
 export 'learmond_native_pay.dart' show LearmondNativePay;
 export 'learmondindividualbuttons.dart'
     show
-        LearmondIndividualButtons,
         LearmondCardButton,
         LearmondUSBankButton,
         LearmondEUBankButton,
         LearmondApplePayButton,
         LearmondGooglePayButton;
 
-/// Exports the summary line item model for merchant receipts.
-export 'summary_line_item.dart' show SummaryLineItem;
+/// Summary line item model for merchant receipts (re-export from package:lpe).
 
 /// Exports the merchant argument builder/controller utilities for advanced integrations.
-export 'merchant_args_controller.dart' show MerchantArgsController;
-export 'merchant_arg_builder.dart'
+// Use canonical implementations from the published `lpe` package to avoid
+// duplication and keep behavior consistent with the upstream library.
+export 'package:lpe/lpe.dart'
     show
+        MerchantArgsController,
         buildMerchantArgs,
         buildMerchantArgsFromAmount,
         setMerchantArgsBuilder,
-        clearMerchantArgsBuilder;
+        clearMerchantArgsBuilder,
+        SummaryLineItem;

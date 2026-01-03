@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lpe_sdk/lpe_sdk.dart';
+import 'package:lpe_sdk/lpe_sdk.dart' show Learmond;
 
 void main() => runApp(const MyApp());
 
@@ -26,24 +26,15 @@ class HomePage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text('Show Pay Sheet'),
           onPressed: () async {
-            final result = await showLpePaysheet(
-              context,
-              publishableKey: 'pk_test_...', // Replace with your key
-              clientSecret: 'pi_..._secret_...', // Replace with your secret
-              method: 'card',
-              amount: '10.00',
+            await showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (ctx) => Learmond.instance.presentLearmondPayButtons(
+                context: ctx,
+                apiKey: 'api_test_1234567890',
+                amount: '10.00',
+              ),
             );
-            if (context.mounted) {
-              final success = result?.success == true;
-              final message = success
-                  ? 'Payment succeeded!'
-                  : 'Payment failed: ${result?.errorMessage ?? (result?.error ?? 'Unknown error').replaceAll('_', ' ')}';
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                ),
-              );
-            }
           },
         ),
       ),

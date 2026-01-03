@@ -1,6 +1,76 @@
 PODS:
+  - Adyen (5.21.0):
+    - Adyen/Actions (= 5.21.0)
+    - Adyen/Card (= 5.21.0)
+    - Adyen/Components (= 5.21.0)
+    - Adyen/Core (= 5.21.0)
+    - Adyen/DropIn (= 5.21.0)
+    - Adyen/Encryption (= 5.21.0)
+    - Adyen/Session (= 5.21.0)
+  - Adyen/Actions (5.21.0):
+    - Adyen/Core
+    - Adyen3DS2 (= 2.4.3)
+  - Adyen/Card (5.21.0):
+    - Adyen/Core
+    - Adyen/Encryption
+  - Adyen/Components (5.21.0):
+    - Adyen/Core
+    - Adyen/Encryption
+  - Adyen/Core (5.21.0):
+    - AdyenNetworking (= 3.0.1)
+  - Adyen/DropIn (5.21.0):
+    - Adyen/Actions
+    - Adyen/Card
+    - Adyen/Components
+    - Adyen/Core
+    - Adyen/Encryption
+  - Adyen/Encryption (5.21.0)
+  - Adyen/Session (5.21.0):
+    - Adyen/Actions
+    - Adyen/Core
+  - Adyen3DS2 (2.4.3)
+  - adyen_checkout (0.0.1):
+    - Adyen (= 5.21.0)
+    - Flutter
+  - AdyenNetworking (3.0.1)
+  - Braintree/ApplePay (5.6.3):
+    - Braintree/Core
+  - Braintree/Card (5.6.3):
+    - Braintree/Core
+  - Braintree/Core (5.6.3)
+  - Braintree/PaymentFlow (5.6.3):
+    - Braintree/Core
+    - Braintree/PayPalDataCollector
+  - Braintree/PayPal (5.6.3):
+    - Braintree/Core
+    - Braintree/PayPalDataCollector
+  - Braintree/PayPalDataCollector (5.6.3)
+  - Braintree/ThreeDSecure (5.6.3):
+    - Braintree/Card
+    - Braintree/PaymentFlow
+  - Braintree/UnionPay (5.6.3):
+    - Braintree/Card
+  - Braintree/Venmo (5.6.3):
+    - Braintree/Core
+  - BraintreeDropIn (9.4.0):
+    - Braintree/ApplePay (~> 5.6.1)
+    - Braintree/Card (~> 5.6.1)
+    - Braintree/Core (~> 5.6.1)
+    - Braintree/PayPal (~> 5.6.1)
+    - Braintree/ThreeDSecure (~> 5.6.1)
+    - Braintree/UnionPay (~> 5.6.1)
+    - Braintree/Venmo (~> 5.6.1)
   - Flutter (1.0.0)
+  - flutter_braintree (1.0.0):
+    - Braintree/ApplePay (~> 5.6.3)
+    - Braintree/PayPal (~> 5.6.3)
+    - BraintreeDropIn (= 9.4.0)
+    - Flutter
+  - lpe (0.0.4):
+    - Flutter
   - lpe_sdk (0.0.4):
+    - Flutter
+  - pay_ios (0.0.1):
     - Flutter
   - Stripe (24.23.3):
     - StripeApplePay (= 24.23.3)
@@ -62,13 +132,22 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - adyen_checkout (from `.symlinks/plugins/adyen_checkout/ios`)
   - Flutter (from `Flutter`)
+  - flutter_braintree (from `.symlinks/plugins/flutter_braintree/ios`)
+  - lpe (from `.symlinks/plugins/lpe/ios`)
   - lpe_sdk (from `.symlinks/plugins/lpe_sdk/ios`)
+  - pay_ios (from `.symlinks/plugins/pay_ios/ios`)
   - stripe_ios (from `.symlinks/plugins/stripe_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
+    - Adyen
+    - Adyen3DS2
+    - AdyenNetworking
+    - Braintree
+    - BraintreeDropIn
     - Stripe
     - StripeApplePay
     - StripeCore
@@ -79,18 +158,35 @@ SPEC REPOS:
     - StripeUICore
 
 EXTERNAL SOURCES:
+  adyen_checkout:
+    :path: ".symlinks/plugins/adyen_checkout/ios"
   Flutter:
     :path: Flutter
+  flutter_braintree:
+    :path: ".symlinks/plugins/flutter_braintree/ios"
+  lpe:
+    :path: ".symlinks/plugins/lpe/ios"
   lpe_sdk:
     :path: ".symlinks/plugins/lpe_sdk/ios"
+  pay_ios:
+    :path: ".symlinks/plugins/pay_ios/ios"
   stripe_ios:
     :path: ".symlinks/plugins/stripe_ios/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  Adyen: 67026168abcb83767c0cdf69f49b65f4101f2a7a
+  Adyen3DS2: 1973825d24193688a6c85246d8be333d9cb8bc72
+  adyen_checkout: e75e9f749534d51f8a556af2dd21ace9210ce54a
+  AdyenNetworking: eb6196954566a5b3e0c3c56fa12d8d69948603dc
+  Braintree: cef7388a3647515f1e0861e52200c2f3dad0f98f
+  BraintreeDropIn: 89df35f840004affa22ebb8f06b12d20615411bf
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_braintree: 72276002464c36b1d5a6266fbdb94c0b600e62fd
+  lpe: 535c621a8bcd320b81f7840dfae10ba035349dfb
   lpe_sdk: 212157d4a05968f2c54762f8996f79e9b3bd7750
+  pay_ios: 8c7beb9c61d885f3f51b61f75f8793023fc8843a
   Stripe: a4b6584549bac3698733ed564e55b0b067cfda8a
   stripe_ios: 333911eec3379d06d757c16807628ef637916e8c
   StripeApplePay: c8b005f1b5a242c455f76b42eda08660e9e33102

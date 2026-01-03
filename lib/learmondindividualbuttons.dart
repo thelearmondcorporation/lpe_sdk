@@ -3,10 +3,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 // Web interop helpers used to detect Apple/Google payment SDK presence.
 import 'src/html_stub.dart' if (dart.library.html) 'dart:html' as html;
 import 'src/js_util_stub.dart' if (dart.library.js) 'dart:js_util' as js_util;
-import 'merchant_arg_builder.dart';
-import 'summary_line_item.dart';
-import 'package:paysheet/paysheet.dart'
-    show StripePaymentResult, showLpePaysheet;
+import 'package:lpe/lpe.dart' show buildMerchantArgs, SummaryLineItem;
+import 'package:paysheet/paysheet.dart' show PaymentResult, Paysheet, UIAdjust;
 // web_run_payment_request not required by the native-pay buttons after migration
 import 'learmond_native_pay.dart' show LearmondNativePay;
 
@@ -15,8 +13,8 @@ const double lpeButtonWidth = 110.0;
 /// Centralized result handler used by the individual buttons.
 /// Calls the user callback first, then shows a SnackBar with a friendly
 /// message if available.
-void _handlePaymentResult(BuildContext context, StripePaymentResult result,
-    void Function(StripePaymentResult)? userCallback) {
+void _handlePaymentResult(BuildContext context, PaymentResult result,
+    void Function(PaymentResult)? userCallback) {
   try {
     if (userCallback != null) {
       userCallback(result);
@@ -35,10 +33,10 @@ void _handlePaymentResult(BuildContext context, StripePaymentResult result,
 
 /// Button: Card
 class LearmondCardButton extends StatelessWidget {
-  final String? publishableKey;
+  final String? apiKey;
   final String? clientSecret;
   final String amount;
-  final void Function(StripePaymentResult)? onResult;
+  final void Function(PaymentResult)? onResult;
   final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final String? label;
@@ -49,7 +47,7 @@ class LearmondCardButton extends StatelessWidget {
 
   const LearmondCardButton({
     super.key,
-    this.publishableKey,
+    this.apiKey,
     this.clientSecret,
     this.amount = '0.00',
     this.onResult,
@@ -87,17 +85,73 @@ class LearmondCardButton extends StatelessWidget {
     return SizedBox(
       width: lpeButtonWidth,
       child: ElevatedButton(
-        onPressed: () => showLpePaysheet(
-          context,
-          method: 'card',
-          publishableKey: publishableKey ?? '',
-          clientSecret: clientSecret ?? '',
-          amount: amount,
-          merchantArgs: _buildMerchantArgs(),
-          mountOnShow: true,
-          onPay: onPay,
-          onResult: (result) => _handlePaymentResult(context, result, onResult),
-        ),
+        onPressed: () async {
+          final numberCtrl = TextEditingController();
+          final expiryCtrl = TextEditingController();
+          final cvcCtrl = TextEditingController();
+
+          final uiAdjust = UIAdjust(u: [
+            const SizedBox(height: 8),
+            const Text('Card Details',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: numberCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Card number',
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 90,
+                  child: TextField(
+                    controller: expiryCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'MM/YY',
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: cvcCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'CVC',
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 0),
+          ]);
+          final result = await Paysheet.instance.present(
+            context,
+            method: 'card',
+            amount: amount,
+            merchantArgs: _buildMerchantArgs(),
+            uiAdjust: uiAdjust,
+            mountOnShow: true,
+            onPay: onPay,
+          );
+          if (result != null) _handlePaymentResult(context, result, onResult);
+        },
         style: style,
         child: Text(label ?? 'Card'),
       ),
@@ -107,10 +161,10 @@ class LearmondCardButton extends StatelessWidget {
 
 /// Button: US Bank
 class LearmondUSBankButton extends StatelessWidget {
-  final String? publishableKey;
+  final String? apiKey;
   final String? clientSecret;
   final String amount;
-  final void Function(StripePaymentResult)? onResult;
+  final void Function(PaymentResult)? onResult;
   final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final String? label;
@@ -121,7 +175,7 @@ class LearmondUSBankButton extends StatelessWidget {
 
   const LearmondUSBankButton({
     super.key,
-    this.publishableKey,
+    this.apiKey,
     this.clientSecret,
     this.amount = '0.00',
     this.onResult,
@@ -159,17 +213,49 @@ class LearmondUSBankButton extends StatelessWidget {
     return SizedBox(
       width: lpeButtonWidth,
       child: ElevatedButton(
-        onPressed: () => showLpePaysheet(
-          context,
-          method: 'us_bank',
-          publishableKey: publishableKey ?? '',
-          clientSecret: clientSecret ?? '',
-          amount: amount,
-          merchantArgs: _buildMerchantArgs(),
-          mountOnShow: true,
-          onPay: onPay,
-          onResult: (result) => _handlePaymentResult(context, result, onResult),
-        ),
+        onPressed: () async {
+          final routingCtrl = TextEditingController();
+          final accountCtrl = TextEditingController();
+
+          final uiAdjust = UIAdjust(u: [
+            const SizedBox(height: 8),
+            const Text('Bank Account',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: routingCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Routing Number',
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: accountCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Account Number',
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+            const SizedBox(height: 0),
+          ]);
+          final result = await Paysheet.instance.present(
+            context,
+            method: 'us_bank',
+            amount: amount,
+            merchantArgs: _buildMerchantArgs(),
+            uiAdjust: uiAdjust,
+            mountOnShow: true,
+            onPay: onPay,
+          );
+          if (result != null) _handlePaymentResult(context, result, onResult);
+        },
         style: style,
         child: Text(label ?? 'US Bank'),
       ),
@@ -179,10 +265,10 @@ class LearmondUSBankButton extends StatelessWidget {
 
 /// Button: EU Bank (IBAN)
 class LearmondEUBankButton extends StatelessWidget {
-  final String? publishableKey;
+  final String? apiKey;
   final String? clientSecret;
   final String amount;
-  final void Function(StripePaymentResult)? onResult;
+  final void Function(PaymentResult)? onResult;
   final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final String? label;
@@ -193,7 +279,7 @@ class LearmondEUBankButton extends StatelessWidget {
 
   const LearmondEUBankButton({
     super.key,
-    this.publishableKey,
+    this.apiKey,
     this.clientSecret,
     this.amount = '0.00',
     this.onResult,
@@ -231,17 +317,36 @@ class LearmondEUBankButton extends StatelessWidget {
     return SizedBox(
       width: lpeButtonWidth,
       child: ElevatedButton(
-        onPressed: () => showLpePaysheet(
-          context,
-          method: 'eu_bank',
-          publishableKey: publishableKey ?? '',
-          clientSecret: clientSecret ?? '',
-          amount: amount,
-          merchantArgs: _buildMerchantArgs(),
-          mountOnShow: true,
-          onPay: onPay,
-          onResult: (result) => _handlePaymentResult(context, result, onResult),
-        ),
+        onPressed: () async {
+          final ibanCtrl = TextEditingController();
+
+          final uiAdjust = UIAdjust(u: [
+            const SizedBox(height: 8),
+            const Text('SEPA', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: ibanCtrl,
+              keyboardType: TextInputType.text,
+              decoration: const InputDecoration(
+                hintText: 'DE89 3704 0044 0532 0130 00',
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+            const SizedBox(height: 0),
+          ]);
+          final result = await Paysheet.instance.present(
+            context,
+            method: 'eu_bank',
+            amount: amount,
+            merchantArgs: _buildMerchantArgs(),
+            uiAdjust: uiAdjust,
+            mountOnShow: true,
+            onPay: onPay,
+          );
+          if (result != null) _handlePaymentResult(context, result, onResult);
+        },
         style: style,
         child: Center(
           child: Text(
@@ -257,13 +362,13 @@ class LearmondEUBankButton extends StatelessWidget {
 
 /// Button: Apple Pay
 class LearmondApplePayButton extends StatelessWidget {
-  final String? publishableKey;
+  final String? apiKey;
   final String? appleMerchantId;
   final String? merchantName;
   final String? merchantInfo;
   final String amount;
   final String currency;
-  final void Function(StripePaymentResult)? onResult;
+  final void Function(PaymentResult)? onResult;
   final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final Map<String, dynamic>? merchantArgs;
@@ -271,7 +376,7 @@ class LearmondApplePayButton extends StatelessWidget {
 
   const LearmondApplePayButton({
     super.key,
-    this.publishableKey,
+    this.apiKey,
     this.appleMerchantId,
     this.merchantName,
     this.merchantInfo,
@@ -300,7 +405,7 @@ class LearmondApplePayButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () async {
           final margs = buildMerchantArgs(
-            appleMerchantId: appleMerchantId,
+            merchantId: appleMerchantId,
             merchantName: merchantName,
             merchantInfo: merchantInfo,
             summaryItems: summaryItems,
@@ -310,7 +415,7 @@ class LearmondApplePayButton extends StatelessWidget {
           final int amountCents = (amt * 100).round();
           final args = <String, dynamic>{
             'method': 'apple_pay',
-            'publishableKey': publishableKey ?? '',
+            'apiKey': apiKey ?? '',
             'merchantArgs': margs ?? <String, dynamic>{},
             'amountCents': amountCents,
             'amount': amount,
@@ -338,13 +443,13 @@ class LearmondApplePayButton extends StatelessWidget {
 
 /// Button: Google Pay
 class LearmondGooglePayButton extends StatelessWidget {
-  final String? publishableKey;
+  final String? apiKey;
   final String? googleMerchantId;
   final String? merchantName;
   final String? merchantInfo;
   final String amount;
   final String currency;
-  final void Function(StripePaymentResult)? onResult;
+  final void Function(PaymentResult)? onResult;
   final Future<void> Function()? onPay;
   final ButtonStyle? buttonStyle;
   final Map<String, dynamic>? merchantArgs;
@@ -352,7 +457,7 @@ class LearmondGooglePayButton extends StatelessWidget {
 
   const LearmondGooglePayButton({
     super.key,
-    this.publishableKey,
+    this.apiKey,
     this.googleMerchantId,
     this.merchantName,
     this.merchantInfo,
@@ -416,7 +521,7 @@ class LearmondGooglePayButton extends StatelessWidget {
               } catch (_) {}
             }
             final margs = buildMerchantArgs(
-              googleMerchantId: googleMerchantId,
+              gatewayMerchantId: googleMerchantId,
               merchantName: merchantName,
               merchantInfo: merchantInfo,
               summaryItems: summaryItems,
@@ -426,7 +531,7 @@ class LearmondGooglePayButton extends StatelessWidget {
             final int amountCents = (amt * 100).round();
             final args = <String, dynamic>{
               'method': 'google_pay',
-              'publishableKey': publishableKey ?? '',
+              'apiKey': apiKey ?? '',
               'merchantArgs': margs ?? <String, dynamic>{},
               'amountCents': amountCents,
               'amount': amount,
@@ -447,191 +552,6 @@ class LearmondGooglePayButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// Layout helper that arranges the individual buttons using the same sizing
-/// and spacing rules as `LearmondPayButtons` so apps can embed the individual
-/// components while preserving a consistent appearance.
-class LearmondIndividualButtons extends StatelessWidget {
-  final String? publishableKey;
-  final String? clientSecret;
-  final String? appleMerchantId;
-  final String? googleMerchantId;
-  final Map<String, dynamic>? merchantArgs;
-  final String? merchantName;
-  final String? merchantInfo;
-  final List<SummaryLineItem>? summaryItems;
-  final String amount;
-  final String currency;
-  final void Function(StripePaymentResult result)? onResult;
-  final Future<void> Function()? onPay;
-  final ButtonStyle? buttonStyle;
-
-  const LearmondIndividualButtons({
-    super.key,
-    this.publishableKey,
-    this.clientSecret,
-    this.appleMerchantId,
-    this.googleMerchantId,
-    this.merchantArgs,
-    this.merchantName,
-    this.merchantInfo,
-    this.summaryItems,
-    this.amount = '0.00',
-    this.currency = 'USD',
-    this.onResult,
-    this.onPay,
-    this.buttonStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const horizontalPadding = 16.0 * 2; // parent content padding on both sides
-    const spacing = 8.0; // spacing between buttons
-    final availableWidthForThree =
-        screenWidth - horizontalPadding - (spacing * 2); // gaps between 3 items
-    var buttonWidthThree = availableWidthForThree / 3.0;
-    // clamp sensible min/max values
-    if (buttonWidthThree < 88.0) {
-      buttonWidthThree = 88.0;
-    }
-    if (buttonWidthThree > 360.0) {
-      buttonWidthThree = 360.0;
-    }
-
-    // Native-pay sizing: ensure minimums required by design
-    final nativeHeight = 40.0;
-    final nativeMinWidth = buttonWidthThree < 100.0 ? 100.0 : buttonWidthThree;
-    final nativeSideMargin = nativeHeight * 0.1; // 1/10 of height
-
-    final style = buttonStyle ??
-        ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-          shape: const StadiumBorder(),
-          textStyle: const TextStyle(fontSize: 14.0),
-          backgroundColor: Colors.white, // white buttons
-          foregroundColor: Colors.black, // dark text/icons
-          elevation: 3,
-          shadowColor: Colors.black12,
-          minimumSize: const Size(56, 40),
-        );
-
-    final effectiveMerchantArgs = buildMerchantArgs(
-      appleMerchantId: appleMerchantId,
-      googleMerchantId: googleMerchantId,
-      merchantName: merchantName,
-      merchantInfo: merchantInfo,
-      summaryItems: summaryItems,
-      builder: merchantArgs,
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            // left (card)
-            Expanded(
-              flex: 1,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    minWidth: buttonWidthThree,
-                    maxWidth: buttonWidthThree * 1.2),
-                child: LearmondCardButton(
-                  publishableKey: publishableKey,
-                  clientSecret: clientSecret,
-                  amount: amount,
-                  onResult: onResult,
-                  onPay: onPay,
-                  buttonStyle: style,
-                  merchantArgs: effectiveMerchantArgs,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            // middle (us bank)
-            Expanded(
-              flex: 1,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    minWidth: buttonWidthThree,
-                    maxWidth: buttonWidthThree * 1.2),
-                child: LearmondUSBankButton(
-                  publishableKey: publishableKey,
-                  clientSecret: clientSecret,
-                  amount: amount,
-                  onResult: onResult,
-                  onPay: onPay,
-                  buttonStyle: style,
-                  merchantArgs: effectiveMerchantArgs,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            // right (eu bank) - give extra flex so it doesn't wrap
-            Expanded(
-              flex: 2,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: buttonWidthThree * 1.2),
-                child: LearmondEUBankButton(
-                  publishableKey: publishableKey,
-                  clientSecret: clientSecret,
-                  amount: amount,
-                  onResult: onResult,
-                  onPay: onPay,
-                  buttonStyle: style,
-                  merchantArgs: effectiveMerchantArgs,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8.0),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8.0,
-          runSpacing: 8.0,
-          children: [
-            SizedBox(
-              width: nativeMinWidth,
-              child: LearmondApplePayButton(
-                appleMerchantId: appleMerchantId,
-                merchantArgs: effectiveMerchantArgs,
-                amount: amount,
-                currency: currency,
-                onResult: onResult,
-                onPay: onPay,
-                buttonStyle: style.copyWith(
-                  padding: WidgetStateProperty.all(
-                      EdgeInsets.symmetric(horizontal: nativeSideMargin)),
-                  minimumSize: WidgetStateProperty.all(
-                      Size(nativeMinWidth, nativeHeight)),
-                ),
-              ),
-            ),
-            SizedBox(
-              width: nativeMinWidth,
-              child: LearmondGooglePayButton(
-                googleMerchantId: googleMerchantId,
-                merchantArgs: effectiveMerchantArgs,
-                amount: amount,
-                currency: currency,
-                onResult: onResult,
-                onPay: onPay,
-                buttonStyle: style.copyWith(
-                  padding: WidgetStateProperty.all(
-                      EdgeInsets.symmetric(horizontal: nativeSideMargin)),
-                  minimumSize: WidgetStateProperty.all(
-                      Size(nativeMinWidth, nativeHeight)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

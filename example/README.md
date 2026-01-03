@@ -1,6 +1,6 @@
 # LPE Example
 
-This minimal Flutter app demonstrates embedding `LearmondPayButtons` from the `lpe` package. It shows how to pass `publishableKey`, `clientSecret`, `merchantId`, and `amount` and listens to `onResult` for success/failure.
+This minimal Flutter app demonstrates embedding `LearmondPayButtons` from the `lpe` package. It shows how to pass `apiKey`, `clientSecret`, `merchantId`, and `amount` and listens to `onResult` for success/failure.
 
 Run:
 

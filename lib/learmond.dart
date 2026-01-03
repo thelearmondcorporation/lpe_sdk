@@ -30,12 +30,11 @@
 //   default merchant name/info).
 
 import 'package:flutter/material.dart';
-import 'learmondpaybuttons.dart' show LearmondPayButtons;
-import 'merchant_arg_builder.dart' show buildMerchantArgs;
+import 'package:lpe/lpe.dart'
+    show LearmondPayButtons, buildMerchantArgs, SummaryLineItem;
 import 'lpe_sdk_config.dart' show LpeSDKConfig;
 import 'learmondindividualbuttons.dart'
     show
-        LearmondIndividualButtons,
         LearmondCardButton,
         LearmondUSBankButton,
         LearmondEUBankButton,
@@ -43,8 +42,8 @@ import 'learmondindividualbuttons.dart'
         LearmondGooglePayButton;
 import 'learmond_individual_button_source_pay_button.dart'
     show LearmondSourcePayButton;
-import 'summary_line_item.dart' show SummaryLineItem;
-import 'package:paysheet/paysheet.dart' show StripePaymentResult;
+
+import 'package:paysheet/paysheet.dart' show PaymentResult;
 
 class Learmond {
   Learmond._private();
@@ -67,7 +66,7 @@ class Learmond {
   /// Presents the composite `LearmondPayButtons` widget in a bottom sheet.
   Widget presentLearmondPayButtons({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? clientSecret,
     String? appleMerchantId,
     String? googleMerchantId,
@@ -77,7 +76,7 @@ class Learmond {
     List<SummaryLineItem>? summaryItems,
     String amount = '0.00',
     String currency = 'USD',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     bool showNativePay = true,
     ButtonStyle? buttonStyle,
@@ -89,8 +88,7 @@ class Learmond {
           top: 24,
           bottom: MediaQuery.of(context).viewInsets.bottom + 16),
       child: LearmondPayButtons(
-        publishableKey: publishableKey,
-        clientSecret: clientSecret,
+        apiKey: apiKey,
         appleMerchantId: appleMerchantId ?? LpeSDKConfig.appleMerchantId,
         googleMerchantId: googleMerchantId ?? LpeSDKConfig.googleMerchantId,
         merchantArgs: merchantArgs,
@@ -99,7 +97,9 @@ class Learmond {
         summaryItems: summaryItems,
         amount: amount,
         currency: currency,
-        onResult: onResult,
+        onResult: onResult == null
+            ? null
+            : (dynamic r) => onResult(r as PaymentResult),
         onPay: onPay,
         showNativePay: showNativePay,
         buttonStyle: buttonStyle,
@@ -110,7 +110,7 @@ class Learmond {
   /// Presents the `LearmondIndividualButtons` composite in a bottom sheet.
   Widget presentIndividualButtons({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? clientSecret,
     String? appleMerchantId,
     String? googleMerchantId,
@@ -120,7 +120,7 @@ class Learmond {
     List<SummaryLineItem>? summaryItems,
     String amount = '0.00',
     String currency = 'USD',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
   }) {
@@ -130,9 +130,8 @@ class Learmond {
           right: 16,
           top: 24,
           bottom: MediaQuery.of(context).viewInsets.bottom + 16),
-      child: LearmondIndividualButtons(
-        publishableKey: publishableKey,
-        clientSecret: clientSecret,
+      child: LearmondPayButtons(
+        apiKey: apiKey,
         appleMerchantId: appleMerchantId ?? LpeSDKConfig.appleMerchantId,
         googleMerchantId: googleMerchantId ?? LpeSDKConfig.googleMerchantId,
         merchantArgs: merchantArgs,
@@ -141,7 +140,9 @@ class Learmond {
         summaryItems: summaryItems,
         amount: amount,
         currency: currency,
-        onResult: onResult,
+        onResult: onResult == null
+            ? null
+            : (dynamic r) => onResult(r as PaymentResult),
         onPay: onPay,
         buttonStyle: buttonStyle,
       ),
@@ -155,10 +156,10 @@ class Learmond {
   /// build() can now `return Learmond.instance.presentCardButton(...)`.
   Widget presentCardButton({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? clientSecret,
     String amount = '0.00',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
     String? merchantName,
@@ -168,7 +169,7 @@ class Learmond {
     String? label,
   }) {
     return LearmondCardButton(
-      publishableKey: publishableKey,
+      apiKey: apiKey,
       clientSecret: clientSecret,
       amount: amount,
       onResult: onResult,
@@ -184,10 +185,10 @@ class Learmond {
 
   Widget presentUSBankButton({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? clientSecret,
     String amount = '0.00',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
     String? label,
@@ -197,7 +198,7 @@ class Learmond {
     Map<String, dynamic>? merchantArgs,
   }) {
     return LearmondUSBankButton(
-      publishableKey: publishableKey,
+      apiKey: apiKey,
       clientSecret: clientSecret,
       amount: amount,
       onResult: onResult,
@@ -213,10 +214,10 @@ class Learmond {
 
   Widget presentEUBankButton({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? clientSecret,
     String amount = '0.00',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
     String? label,
@@ -226,7 +227,7 @@ class Learmond {
     Map<String, dynamic>? merchantArgs,
   }) {
     return LearmondEUBankButton(
-      publishableKey: publishableKey,
+      apiKey: apiKey,
       clientSecret: clientSecret,
       amount: amount,
       onResult: onResult,
@@ -242,11 +243,11 @@ class Learmond {
 
   Widget presentApplePayButton({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? appleMerchantId,
     String amount = '0.00',
     String currency = 'USD',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
     Map<String, dynamic>? merchantArgs,
@@ -255,7 +256,7 @@ class Learmond {
     List<SummaryLineItem>? summaryItems,
   }) {
     return LearmondApplePayButton(
-      publishableKey: publishableKey,
+      apiKey: apiKey,
       appleMerchantId: appleMerchantId ?? LpeSDKConfig.appleMerchantId,
       merchantArgs: merchantArgs,
       merchantName: merchantName,
@@ -271,11 +272,11 @@ class Learmond {
 
   Widget presentGooglePayButton({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? googleMerchantId,
     String amount = '0.00',
     String currency = 'USD',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
     Map<String, dynamic>? merchantArgs,
@@ -284,7 +285,7 @@ class Learmond {
     List<SummaryLineItem>? summaryItems,
   }) {
     return LearmondGooglePayButton(
-      publishableKey: publishableKey,
+      apiKey: apiKey,
       googleMerchantId: googleMerchantId ?? LpeSDKConfig.googleMerchantId,
       merchantArgs: merchantArgs,
       merchantName: merchantName,
@@ -300,11 +301,11 @@ class Learmond {
 
   Widget presentSourcePayButton({
     required BuildContext context,
-    String? publishableKey,
+    String? apiKey,
     String? sourceAccountId,
     String amount = '0.00',
     String currency = 'USD',
-    void Function(StripePaymentResult result)? onResult,
+    void Function(PaymentResult result)? onResult,
     Future<void> Function()? onPay,
     ButtonStyle? buttonStyle,
     Map<String, dynamic>? merchantArgs,
@@ -313,7 +314,7 @@ class Learmond {
     List<SummaryLineItem>? summaryItems,
   }) {
     return LearmondSourcePayButton(
-      publishableKey: publishableKey,
+      apiKey: apiKey,
       sourceAccountId: sourceAccountId,
       amount: amount,
       onResult: onResult,
